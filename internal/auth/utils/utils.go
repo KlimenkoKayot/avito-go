@@ -27,6 +27,30 @@ func NewDB() (*sqlx.DB, error) {
 	return db, nil
 }
 
+func CreateUsersTable(db *sqlx.DB) error {
+	_, err := db.Exec(`
+		DROP TABLE IF EXISTS users;
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`
+			CREATE TABLE users (
+				id UUID PRIMARY KEY,
+				login TEXT UNIQUE NOT NULL,
+				secret TEXT NOT NULL,
+				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			)
+		`)
+	if err != nil {
+		return err
+	}
+	log.Println("Table 'users' created successfully")
+
+	return nil
+}
+
 func GetPort() (string, error) {
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -21,6 +21,10 @@ func NewUserRepository() (*UserRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = utils.CreateUsersTable(db)
+	if err != nil {
+		return nil, err
+	}
 	return &UserRepository{
 		db,
 	}, nil
@@ -38,7 +42,8 @@ func (ur *UserRepository) FindByLogin(login string) (*models.UserSecure, error) 
 }
 
 func (ur *UserRepository) ExistByLogin(login string) (bool, error) {
-	err := ur.db.Get(nil, "SELECT * FROM users WHERE login = $1", login)
+	user := &models.UserSecure{}
+	err := ur.db.Get(user, "SELECT * FROM users WHERE login = $1", &login)
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
