@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	handlers "github.com/klimenkokayot/avito-go/internal/auth/server/handlers"
 	utils "github.com/klimenkokayot/avito-go/internal/auth/utils"
+	"github.com/rs/cors"
 )
 
 type AuthServer struct {
@@ -31,5 +32,13 @@ func (s *AuthServer) Run() error {
 
 	mux := mux.NewRouter()
 	mux.HandleFunc("/auth/register", s.handler.Register).Methods("POST")
-	return http.ListenAndServe(":"+port, mux)
+
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://127.0.0.1:8080", "http://localhost:8080"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowCredentials: true,
+	})
+	handler := corsMiddleware.Handler(mux)
+
+	return http.ListenAndServe(":"+port, handler)
 }

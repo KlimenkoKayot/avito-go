@@ -35,14 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             try {
                 // Определяем endpoint
-                const endpoint = this.id === 'loginForm' ? '/auth/login' : '/auth/register';
+                const endpoint = this.id === 'loginForm' ? 'http://127.0.0.1:8081/auth/login' : 'http://127.0.0.1:8081/auth/register';
                 
                 // Отправляем запрос с таймаутом 5 секунд
                 const response = await fetchWithTimeout(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Origin': 'http://127.0.0.1:8080'
                     },
                     body: JSON.stringify({
                         login: formData.username,
