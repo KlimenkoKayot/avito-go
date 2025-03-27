@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -17,22 +18,28 @@ func init() {
 }
 
 func NewDB() (*sqlx.DB, error) {
+	logrus.Info("Инициализация базы данных.")
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		log.Fatal("Задан пустой DB_DSN для подключения в базе данных")
+		logrus.Error("Задан пустой DB_DSN для подключения в базе данных")
+		return nil, ErrDatabaseConn
 	}
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
+		logrus.Errorf("Ошибка при подключении по DSN: %s.", err.Error())
 		return nil, fmt.Errorf("%w: %s", ErrDatabaseConn, err.Error())
 	}
+	logrus.Debug("Инициализация успешна.")
 	return db, nil
 }
 
 func CreateUsersTable(db *sqlx.DB) error {
+	logrus.Info("Инициализация таблицы users.")
 	_, err := db.Exec(`
 		DROP TABLE IF EXISTS users;
 	`)
 	if err != nil {
+		logrus.Error("Ошибка при запросе в базу данных.")
 		return err
 	}
 
@@ -45,10 +52,11 @@ func CreateUsersTable(db *sqlx.DB) error {
 			)
 		`)
 	if err != nil {
+		logrus.Error("Ошибка при запросе в базу данных.")
 		return err
 	}
-	log.Println("Table 'users' created successfully")
 
+	logrus.Debug("Успешно создана таблица users.")
 	return nil
 }
 
