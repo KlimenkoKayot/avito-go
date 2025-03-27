@@ -1,0 +1,21 @@
+
+1. Сериализация ответов
+- Вместо ручного io.Writer(w).Write() лучше использовать json.NewEncoder(w).Encode():
+
+w.Header().Set("Content-Type", "application/json")
+json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+
+2. Валидация входных данных
+- Добавить проверку полей Login и Password до попытки регистрации:
+
+if user.Login == "" || user.Password == "" {
+    w.WriteHeader(http.StatusBadRequest)
+    return
+}
+
+3. Контекст
+- Передавать context.Context из HTTP-запроса в сервисный слой для:
+    - Таймаутов
+    - Трейсинга (OpenTelemetry)
+
+err = h.authService.Register(r.Context(), user.Login, user.Password)
