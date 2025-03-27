@@ -6,6 +6,7 @@ import (
 
 	utils "github.com/klimenkokayot/avito-go/internal/auth/utils"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -88,4 +89,27 @@ func (ur *UserRepository) Add(login string, passHash []byte) error {
 	}
 	logrus.Debugf("Успешно инициализирован: %s.", login)
 	return nil
+}
+
+func (ur *UserRepository) Check(login, pass string) error {
+	logrus.Info("Проверка на авторизацию.")
+	var secret string
+	err := ur.db.QueryRow("SELECT secret FROM users WHERE login = $1", login).Scan(&secret)
+	if err == sql.ErrNoRows {
+		logrus.Error("Пользователь не найден.")
+		return fmt.Errorf("%w: %s", ErrUserExists, login)
+	} else if err != nil {
+		logrus.Error("Ошибка при запросе в таблицу.")
+		return fmt.Errorf("%w: %s", ErrAddUser, err.Error())
+	}
+
+	logrus.Debug("Проверка пароля с секретом.")
+	err = bcrypt.CompareHashAndPassword([]byte(secret), []byte(pass))
+	if err != nil {
+		logrus.Debugf("Неправильный пароль: %s.", login)
+		return fmt.Errorf("%w: %s", ErrBadPassword, err.Error())
+	} else {
+		logrus.Debugf("Пользователь успешно аутентифицирован: %s.", login)
+		return nil
+	}
 }

@@ -38,6 +38,7 @@ func (s *AuthServer) Run() error {
 
 	mux := mux.NewRouter()
 	mux.HandleFunc("/auth/register", s.handler.Register).Methods("POST")
+	mux.HandleFunc("/auth/login", s.handler.Login).Methods("POST")
 
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://127.0.0.1:8080", "http://localhost:8080"},

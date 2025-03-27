@@ -42,3 +42,15 @@ func (s *AuthService) Register(login, pass string) error {
 	logrus.Debug("Сервис успешно зарегистрировал пользователя.")
 	return nil
 }
+
+func (s *AuthService) Login(login, pass string) error {
+	logrus.Info("Запрос на вход в сервис.")
+	err := s.userRepo.Check(login, pass)
+	if err != nil {
+		logrus.Error("Ошибка при инициализации пользователя.")
+		return fmt.Errorf("%w: %s", ErrAddNewUser, err.Error())
+	}
+
+	logrus.Debug("Сервис успешно обработал вход пользователя.")
+	return nil
+}

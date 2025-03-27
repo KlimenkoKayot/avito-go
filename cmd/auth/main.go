@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	logrus.SetLevel(logrus.DebugLevel)
+
 	logrus.Info("Запуск микросервиса Auth.")
 	server, err := server.NewAuthServer()
 	if err != nil {
@@ -17,7 +19,7 @@ func main() {
 	if err != nil {
 		logrus.Fatal("Ошибка при получении порта.")
 	}
-	logrus.Debugf("Сервер запущен на порту %s\n.", port)
+	logrus.Debugf("Сервер запущен на порту %s.", port)
 	if err := server.Run(); err != nil {
 		logrus.Fatal("Ошибка при запуске сервера.")
 	}
