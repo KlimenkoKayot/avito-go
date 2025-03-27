@@ -19,7 +19,7 @@ func NewAuthServer() (*AuthServer, error) {
 	logrus.Debug("Инициализация AuthServer`a.")
 	handler, err := handlers.NewAuthHandler()
 	if err != nil {
-		logrus.Errorf("Ошибка при создании AuthServer`а!")
+		logrus.Errorf("Ошибка при создании AuthServer`а.")
 		return nil, fmt.Errorf("%w: %s", ErrNewServer, err.Error())
 	}
 	logrus.Debug("Успешно создан AuthServer.")

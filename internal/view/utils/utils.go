@@ -1,15 +1,15 @@
 package auth
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
 	if err := godotenv.Load("internal/view/.env"); err != nil {
-		log.Fatal("Ошибка загрузки .env файла")
+		logrus.Fatal("Ошибка загрузки .env файла")
 	}
 }
 
