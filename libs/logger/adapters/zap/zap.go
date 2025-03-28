@@ -33,7 +33,7 @@ func (z *ZapAdapter) Warn(msg string, fields ...logger.Field) {
 	z.Logger.Warn(msg, toZapFields(fields)...)
 }
 
-func NewZapProductionAdapter(isDebug bool) (logger.Logger, error) {
+func NewAdapter(isDebug bool) (logger.Logger, error) {
 	zapCfg := zap.NewProductionConfig()
 	if isDebug {
 		zapCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
