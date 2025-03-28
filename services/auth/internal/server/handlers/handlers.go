@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	service "github.com/klimenkokayot/avito-go/internal/auth/service"
 	"github.com/klimenkokayot/avito-go/pkg/models"
+	service "github.com/klimenkokayot/avito-go/services/auth/internal/service"
 	"github.com/sirupsen/logrus"
 )
 

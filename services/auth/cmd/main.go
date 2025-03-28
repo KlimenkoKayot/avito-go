@@ -1,14 +1,12 @@
 package main
 
 import (
-	server "github.com/klimenkokayot/avito-go/internal/auth/server"
-	utils "github.com/klimenkokayot/avito-go/internal/auth/utils"
+	server "github.com/klimenkokayot/avito-go/services/auth/internal/server"
+	utils "github.com/klimenkokayot/avito-go/services/auth/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	logrus.SetLevel(logrus.DebugLevel)
-
 	logrus.Info("Запуск микросервиса Auth.")
 	server, err := server.NewAuthServer()
 	if err != nil {

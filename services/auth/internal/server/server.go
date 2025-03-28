@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	handlers "github.com/klimenkokayot/avito-go/internal/auth/server/handlers"
-	utils "github.com/klimenkokayot/avito-go/internal/auth/utils"
+	handlers "github.com/klimenkokayot/avito-go/services/auth/internal/server/handlers"
+	utils "github.com/klimenkokayot/avito-go/services/auth/pkg/utils"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 )

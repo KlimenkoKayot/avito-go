@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/jmoiron/sqlx"
@@ -12,8 +11,8 @@ import (
 )
 
 func init() {
-	if err := godotenv.Load("internal/auth/.env"); err != nil {
-		log.Fatal("Ошибка загрузки .env файла")
+	if err := godotenv.Load(".env"); err != nil {
+		logrus.Fatalf("Ошибка загрузки .env файла: %s.", err.Error())
 	}
 }
 

@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 
-	repo "github.com/klimenkokayot/avito-go/internal/auth/repository"
+	repo "github.com/klimenkokayot/avito-go/services/auth/internal/repository"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
