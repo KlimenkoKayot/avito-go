@@ -5,6 +5,7 @@ import (
 
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type ZapAdapter struct {
@@ -33,11 +34,9 @@ func (z *ZapAdapter) Warn(msg string, fields ...logger.Field) {
 	z.Logger.Warn(msg, toZapFields(fields)...)
 }
 
-func NewAdapter(isDebug bool) (logger.Logger, error) {
+func NewAdapter(level logger.Level) (logger.Logger, error) {
 	zapCfg := zap.NewProductionConfig()
-	if isDebug {
-		zapCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	}
+	zapCfg.Level = zap.NewAtomicLevelAt(zapcore.Level(level))
 	zapLogger, err := zapCfg.Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s.", ErrZapBuild, err.Error())

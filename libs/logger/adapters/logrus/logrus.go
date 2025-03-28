@@ -29,11 +29,12 @@ func (a *LogrusAdapter) Warn(msg string, fields ...logger.Field) {
 	a.Logger.WithFields(toLogrusFields(fields)).Warn(msg)
 }
 
-func NewLogrusLogger() (logger.Logger, error) {
+func NewAdapter(level logger.Level) (logger.Logger, error) {
 	logrusLogger := logrus.New()
 	adapter := &LogrusAdapter{
 		logrusLogger,
 	}
+	logrusLogger.SetLevel(logrus.Level(level))
 	return adapter, nil
 }
 
