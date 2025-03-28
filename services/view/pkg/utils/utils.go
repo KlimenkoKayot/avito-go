@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	if err := godotenv.Load("internal/view/.env"); err != nil {
-		logrus.Fatal("Ошибка загрузки .env файла")
+	if err := godotenv.Load(".env"); err != nil {
+		logrus.Fatalf("Ошибка загрузки .env файла: %s.", err.Error())
 	}
 }
 

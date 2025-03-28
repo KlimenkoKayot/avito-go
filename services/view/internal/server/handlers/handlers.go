@@ -14,7 +14,7 @@ type ViewHandler struct {
 
 func NewViewHandler() (*ViewHandler, error) {
 	logrus.Info("Инициализация ViewHandler`a.")
-	templateDir := filepath.Join("internal", "view", "web", "template", "*.html")
+	templateDir := filepath.Join("web", "template", "*.html")
 	tmpl, err := template.ParseGlob(templateDir)
 	if err != nil {
 		logrus.Error("Ошибка при парсинге шаблонов в ViewHandler`e.")

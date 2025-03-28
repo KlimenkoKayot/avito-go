@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	handlers "github.com/klimenkokayot/avito-go/internal/view/server/handlers"
-	utils "github.com/klimenkokayot/avito-go/internal/view/utils"
+	handlers "github.com/klimenkokayot/avito-go/services/view/internal/server/handlers"
+	utils "github.com/klimenkokayot/avito-go/services/view/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 

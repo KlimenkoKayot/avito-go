@@ -1,8 +1,8 @@
 package main
 
 import (
-	server "github.com/klimenkokayot/avito-go/internal/view/server"
-	utils "github.com/klimenkokayot/avito-go/internal/view/utils"
+	server "github.com/klimenkokayot/avito-go/services/view/internal/server"
+	utils "github.com/klimenkokayot/avito-go/services/view/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
