@@ -3,9 +3,9 @@ package logger
 import (
 	"fmt"
 
-	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/libs/logger/adapters/logrus"
 	"github.com/klimenkokayot/avito-go/libs/logger/adapters/zap"
+	"github.com/klimenkokayot/avito-go/libs/logger/domain"
 )
 
 const (
@@ -19,10 +19,10 @@ var (
 
 type Config struct {
 	Adapter string
-	Level   logger.Level
+	Level   domain.Level
 }
 
-func NewAdapter(config *Config) (logger.Logger, error) {
+func NewAdapter(config *Config) (domain.Logger, error) {
 	switch config.Adapter {
 	case AdapterZap:
 		return zap.NewAdapter(config.Level)

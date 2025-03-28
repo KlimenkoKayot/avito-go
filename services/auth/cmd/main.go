@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/klimenkokayot/avito-go/libs/logger/adapters/zap"
+	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/app"
 )
@@ -14,7 +14,8 @@ func main() {
 		log.Fatalf("Ошибка при инициализации config`a: %s.", err.Error())
 	}
 
-	logger, err := zap.NewAdapter(false)
+	logger, err := logger.NewAdapter()
+
 	if err != nil {
 		log.Fatalf("Ошибка при инициализации config`a: %s.", err.Error())
 	}
