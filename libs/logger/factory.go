@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	AdapterZap2   = "zap"
 	AdapterZap    = "zap"
 	AdapterLogrus = "logrus"
 )
