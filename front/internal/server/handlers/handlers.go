@@ -1,4 +1,4 @@
-package view
+package front
 
 import (
 	"html/template"

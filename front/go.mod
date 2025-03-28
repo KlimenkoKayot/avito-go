@@ -1,4 +1,4 @@
-module github.com/klimenkokayot/avito-go/services/view
+module github.com/klimenkokayot/avito-go/front
 
 go 1.23.7
 

@@ -1,4 +1,4 @@
-package view
+package front
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	handlers "github.com/klimenkokayot/avito-go/services/view/internal/server/handlers"
-	utils "github.com/klimenkokayot/avito-go/services/view/pkg/utils"
+	handlers "github.com/klimenkokayot/avito-go/front/internal/server/handlers"
+	utils "github.com/klimenkokayot/avito-go/front/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,7 +40,7 @@ func (s *ViewServer) Run() error {
 	mux.HandleFunc("/login", s.H.LoginPage).Methods("GET")
 	mux.HandleFunc("/register", s.H.RegisterPage).Methods("GET")
 
-	staticDir := filepath.Join("internal", "view", "web", "static")
+	staticDir := filepath.Join("web", "static")
 	fs := http.FileServer(http.Dir(staticDir))
 	mux.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
