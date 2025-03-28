@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	utils "github.com/klimenkokayot/avito-go/internal/auth/utils"
+	"github.com/klimenkokayot/avito-go/pkg/models"
+	utils "github.com/klimenkokayot/avito-go/services/auth/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/klimenkokayot/avito-go/pkg/models"
 )
 
 type UserRepository struct {

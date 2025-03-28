@@ -42,7 +42,7 @@ func (s *AuthServer) Run() error {
 
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://127.0.0.1:8080", "http://localhost:8080"},
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST"},
 		AllowCredentials: true,
 	})
 	handler := corsMiddleware.Handler(mux)
