@@ -36,7 +36,7 @@ func Load(path string) (*Config, error) {
 	}
 	writeTimeoutSeconds := time.Second * time.Duration(writeTimeoutInt)
 
-	tokenExpirationString := os.Getenv("")
+	tokenExpirationString := os.Getenv("TOKEN_EXPIRATION_TIMEOUT")
 	tokenExpirationInt, err := strconv.Atoi(tokenExpirationString)
 	if err != nil {
 		return nil, err
