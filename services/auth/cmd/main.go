@@ -3,21 +3,20 @@ package main
 import (
 	"log"
 
+	"github.com/klimenkokayot/avito-go/libs/logger/adapters/zap"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/app"
-	"go.uber.org/zap"
 )
 
 func main() {
-	logger, err := zap.NewProduction()
+	config, err := config.Load("")
 	if err != nil {
-		log.Fatalf("Ошибка при инициализации логгера: %s.", err.Error())
-		return
+		log.Fatalf("Ошибка при инициализации config`a: %s.", err.Error())
 	}
 
-	config, err := config.NewConfig()
+	logger, err := zap.NewAdapter(false)
 	if err != nil {
-		logger.Sugar().Fatalf("Ошибка при инициализации конфига: %s.", err.Error())
+		log.Fatalf("Ошибка при инициализации config`a: %s.", err.Error())
 	}
 
 	app, err := app.NewApplication(config, logger)
