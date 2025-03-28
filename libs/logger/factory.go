@@ -19,7 +19,17 @@ var (
 
 type (
 	Level  = domain.Level
+	Field  = domain.Field
 	Logger = domain.Logger
+)
+
+// Реэкспорт констант уровня
+const (
+	LevelDebug = domain.LevelDebug
+	LevelInfo  = domain.LevelInfo
+	LevelWarn  = domain.LevelWarn
+	LevelError = domain.LevelError
+	LevelFatal = domain.LevelFatal
 )
 
 type Config struct {
