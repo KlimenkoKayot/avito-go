@@ -17,12 +17,17 @@ var (
 	ErrUnknownAdapter = fmt.Errorf("логгер не поддерживается")
 )
 
+type (
+	Level  = domain.Level
+	Logger = domain.Logger
+)
+
 type Config struct {
 	Adapter string
-	Level   domain.Level
+	Level   Level
 }
 
-func NewAdapter(config *Config) (domain.Logger, error) {
+func NewAdapter(config *Config) (Logger, error) {
 	switch config.Adapter {
 	case AdapterZap:
 		return zap.NewAdapter(config.Level)
