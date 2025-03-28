@@ -1,24 +1,24 @@
 package main
 
 import (
-	server "github.com/klimenkokayot/avito-go/services/auth/internal/server"
-	utils "github.com/klimenkokayot/avito-go/services/auth/pkg/utils"
-	"github.com/sirupsen/logrus"
+	"log"
+
+	"github.com/klimenkokayot/avito-go/services/auth/config"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/app"
+	"go.uber.org/zap"
 )
 
 func main() {
-	logrus.Info("Запуск микросервиса Auth.")
-	server, err := server.NewAuthServer()
+	logger, err := zap.NewProduction()
 	if err != nil {
-		logrus.Fatal("Неудачная инициализация AuthServer`a.")
+		log.Fatalf("Ошибка при инициализации логгера: %s.", err.Error())
+		return
 	}
-	logrus.Debug("Запрос на получение порта из .env.")
-	port, err := utils.GetPort()
+
+	config, err := config.NewConfig()
 	if err != nil {
-		logrus.Fatal("Ошибка при получении порта.")
+		logger.Sugar().Fatalf("Ошибка при инициализации конфига: %s.", err.Error())
 	}
-	logrus.Debugf("Сервер запущен на порту %s.", port)
-	if err := server.Run(); err != nil {
-		logrus.Fatal("Ошибка при запуске сервера.")
-	}
+
+	app, err := app.NewApplication(config, logger)
 }
