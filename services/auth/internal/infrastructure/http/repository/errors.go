@@ -1,10 +1,8 @@
-package repository
+package repo
 
 import "fmt"
 
 var (
-	ErrFindByLogin = fmt.Errorf("ошибка при поиске пользователя по логину")
-	ErrAddUser     = fmt.Errorf("ошибка при добавлении нового пользователя")
-	ErrUserExists  = fmt.Errorf("пользователь с таким логином существует")
-	ErrBadPassword = fmt.Errorf("неправильный пароль")
+	ErrUserExists = fmt.Errorf("пользователь с таким логином существует")
+	ErrBadDSN     = fmt.Errorf("неправильный database dsn")
 )
