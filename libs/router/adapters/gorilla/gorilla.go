@@ -1,1 +1,35 @@
 package gorilla
+
+import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/klimenkokayot/avito-go/libs/router/domain"
+)
+
+type AdapterGorilla struct {
+	router *mux.Router
+}
+
+func NewAdapter() (domain.Router, error) {
+	mux := mux.NewRouter()
+	return &AdapterGorilla{
+		mux,
+	}, nil
+}
+
+func (a *AdapterGorilla) GET(path string, handler domain.HandlerFunc) {
+	a.router.HandleFunc(path, handler).Methods("GET")
+}
+
+func (a *AdapterGorilla) POST(path string, handler domain.HandlerFunc) {
+	a.router.HandleFunc(path, handler).Methods("POST")
+}
+
+func (a *AdapterGorilla) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	a.router.ServeHTTP(w, r)
+}
+
+func (a *AdapterGorilla) Use(middleware domain.MiddlewareFunc) {
+	a.router.Use(middleware)
+}
