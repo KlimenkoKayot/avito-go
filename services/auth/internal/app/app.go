@@ -4,13 +4,15 @@ import (
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/service"
+	server "github.com/klimenkokayot/avito-go/services/auth/internal/infrastructure/http"
 	repo "github.com/klimenkokayot/avito-go/services/auth/internal/infrastructure/http/repository"
 )
 
 type Application struct {
+	server domain.Server
+	logger logger.Logger
 	config *config.Config
-	logger *logger.Logger
-	server *domain.Server
 }
 
 func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Application, error) {
@@ -18,11 +20,18 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 	if err != nil {
 		return nil, err
 	}
-	service, err := service.NewService(cfg, logger, repo)
-	return &Application{}, nil
+	service, err := service.NewAuthService(repo, cfg, logger)
+	if err != nil {
+		return nil, err
+	}
+	server, err := server.NewAuthServer(service, cfg, logger)
+	return &Application{
+		server,
+		logger,
+		cfg,
+	}, nil
 }
 
 func (a *Application) Run() error {
-
-	return nil
+	return a.server.Run()
 }

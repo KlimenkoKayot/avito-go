@@ -1,52 +1,57 @@
 package server
 
-// import (
-// 	"fmt"
-// 	"net/http"
+import (
+	"fmt"
+	"net/http"
 
-// 	"github.com/gorilla/mux"
-// 	handlers "github.com/klimenkokayot/avito-go/services/auth/internal/server/handlers"
-// 	utils "github.com/klimenkokayot/avito-go/services/auth/pkg/utils"
-// 	"github.com/rs/cors"
-// 	"github.com/sirupsen/logrus"
-// )
+	"github.com/klimenkokayot/avito-go/libs/logger"
+	"github.com/klimenkokayot/avito-go/libs/router"
+	"github.com/klimenkokayot/avito-go/services/auth/config"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/service"
+)
 
-// type AuthServer struct {
-// 	handler *handlers.AuthHandler
-// }
+// corsMiddleware := cors.New(cors.Options{
+// 	AllowedOrigins:   []string{"http://127.0.0.1:8080", "http://localhost:8080"},
+// 	AllowedMethods:   []string{"GET", "POST"},
+// 	AllowCredentials: true,
+// })
+// handler := corsMiddleware.Handler(mux)
 
-// func NewAuthServer() (*AuthServer, error) {
-// 	logrus.Debug("Инициализация AuthServer`a.")
-// 	handler, err := handlers.NewAuthHandler()
-// 	if err != nil {
-// 		logrus.Errorf("Ошибка при создании AuthServer`а.")
-// 		return nil, fmt.Errorf("%w: %s", ErrNewServer, err.Error())
-// 	}
-// 	logrus.Debug("Успешно создан AuthServer.")
-// 	return &AuthServer{
-// 		handler,
-// 	}, nil
-// }
+type AuthServer struct {
+	service *service.AuthService
+	router  router.Router
+	logger  logger.Logger
+	cfg     *config.Config
+}
 
-// func (s *AuthServer) Run() error {
-// 	logrus.Info("Запуск AuthServer`a сервера.")
-// 	port, err := utils.GetPort()
-// 	if err != nil {
-// 		return fmt.Errorf("%w: %s", ErrRunServer, err.Error())
-// 	}
-// 	logrus.Debugf("Получен порт: %s.", port)
+func NewAuthServer(service *service.AuthService, cfg *config.Config, logger logger.Logger) (domain.Server, error) {
+	router, err := router.NewAdapter(&router.Config{
+		Name: cfg.Router,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-// 	mux := mux.NewRouter()
-// 	mux.HandleFunc("/auth/register", s.handler.Register).Methods("POST")
-// 	mux.HandleFunc("/auth/login", s.handler.Login).Methods("POST")
+	server := &AuthServer{
+		service,
+		router,
+		logger,
+		cfg,
+	}
 
-// 	corsMiddleware := cors.New(cors.Options{
-// 		AllowedOrigins:   []string{"http://127.0.0.1:8080", "http://localhost:8080"},
-// 		AllowedMethods:   []string{"GET", "POST"},
-// 		AllowCredentials: true,
-// 	})
-// 	handler := corsMiddleware.Handler(mux)
-// 	logrus.Debug("Cors настроен.")
+	err = server.setupRoutes()
+	if err != nil {
+		return nil, err
+	}
 
-// 	return http.ListenAndServe(":"+port, handler)
-// }
+	return server, nil
+}
+
+func (a *AuthServer) setupRoutes() error {
+	return nil
+}
+
+func (a *AuthServer) Run() error {
+	return http.ListenAndServe(fmt.Sprintf(":%d", a.cfg.ServerPort), a.router)
+}

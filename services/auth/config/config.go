@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	Logger                 string
+	Router                 string
 	ServerPort             int
 	DatabaseDSN            string
 	TokenExpirationMinutes time.Duration
@@ -46,6 +47,7 @@ func Load(path string) (*Config, error) {
 	databaseDSN := os.Getenv("DATABASE_DSN")
 
 	logger := os.Getenv("LOGGER")
+	router := os.Getenv("ROUTER")
 
 	serverPortString := os.Getenv("SERVER_PORT")
 	serverPort, err := strconv.Atoi(serverPortString)
@@ -54,6 +56,7 @@ func Load(path string) (*Config, error) {
 	}
 
 	return &Config{
+		Router:                 router,
 		Logger:                 logger,
 		ServerPort:             serverPort,
 		DatabaseDSN:            databaseDSN,
