@@ -3,6 +3,8 @@ package repo
 import (
 	"database/sql"
 
+	_ "github.com/lib/pq"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/klimenkokayot/avito-go/libs/logger"

@@ -20,11 +20,17 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 	if err != nil {
 		return nil, err
 	}
+
 	service, err := service.NewAuthService(repo, cfg, logger)
 	if err != nil {
 		return nil, err
 	}
+
 	server, err := server.NewAuthServer(service, cfg, logger)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Application{
 		server,
 		logger,

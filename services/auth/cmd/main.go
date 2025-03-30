@@ -23,6 +23,9 @@ func main() {
 	}
 
 	app, err := app.NewApplication(config, logger)
+	if err != nil {
+		logger.Fatal("Ошибка при инициализации application: " + err.Error() + ".")
+	}
 	if err := app.Run(); err != nil {
 		logger.Fatal(err.Error())
 	}
