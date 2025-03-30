@@ -9,29 +9,41 @@ import (
 )
 
 type ZapAdapter struct {
-	*zap.Logger
+	logger *zap.Logger
+	fields []zap.Field
 }
 
-// Debug implements domain.Logger.
-// Subtle: this method shadows the method (*Logger).Debug of ZapAdapter.Logger.
+func (z *ZapAdapter) WithFields(fields ...domain.Field) domain.Logger {
+	zapFields := toZapFields(fields)
+	return &ZapAdapter{
+		logger: z.logger,
+		fields: zapFields,
+	}
+}
+
 func (z *ZapAdapter) Debug(msg string, fields ...domain.Field) {
-	z.Logger.Debug(msg, toZapFields(fields)...)
+	zapFields := append(toZapFields(fields), z.fields...)
+	z.logger.Debug(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
-	z.Logger.Error(msg, toZapFields(fields)...)
+	zapFields := append(toZapFields(fields), z.fields...)
+	z.logger.Error(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
-	z.Logger.Fatal(msg, toZapFields(fields)...)
+	zapFields := append(toZapFields(fields), z.fields...)
+	z.logger.Fatal(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
-	z.Logger.Info(msg, toZapFields(fields)...)
+	zapFields := append(toZapFields(fields), z.fields...)
+	z.logger.Info(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
-	z.Logger.Warn(msg, toZapFields(fields)...)
+	zapFields := append(toZapFields(fields), z.fields...)
+	z.logger.Warn(msg, zapFields...)
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
@@ -43,6 +55,7 @@ func NewAdapter(level domain.Level) (domain.Logger, error) {
 	}
 	return &ZapAdapter{
 		zapLogger,
+		make([]zap.Field, 0),
 	}, nil
 }
 

@@ -6,33 +6,42 @@ import (
 )
 
 type LogrusAdapter struct {
-	*logrus.Logger
+	logger *logrus.Logger
+	fields logrus.Fields
+}
+
+func (a *LogrusAdapter) WithFields(fields ...domain.Field) domain.Logger {
+	return &LogrusAdapter{
+		logger: a.logger,
+		fields: toLogrusFields(fields),
+	}
 }
 
 func (a *LogrusAdapter) Debug(msg string, fields ...domain.Field) {
-	a.Logger.WithFields(toLogrusFields(fields)).Debug(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Debug(msg)
 }
 
 func (a *LogrusAdapter) Error(msg string, fields ...domain.Field) {
-	a.Logger.WithFields(toLogrusFields(fields)).Error(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Error(msg)
 }
 
 func (a *LogrusAdapter) Fatal(msg string, fields ...domain.Field) {
-	a.Logger.WithFields(toLogrusFields(fields)).Fatal(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Fatal(msg)
 }
 
 func (a *LogrusAdapter) Info(msg string, fields ...domain.Field) {
-	a.Logger.WithFields(toLogrusFields(fields)).Info(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Info(msg)
 }
 
 func (a *LogrusAdapter) Warn(msg string, fields ...domain.Field) {
-	a.Logger.WithFields(toLogrusFields(fields)).Warn(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(msg)
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
 	logrusLogger := logrus.New()
 	adapter := &LogrusAdapter{
 		logrusLogger,
+		make(logrus.Fields, 0),
 	}
 	logrusLogger.SetLevel(logrus.Level(level))
 	return adapter, nil
