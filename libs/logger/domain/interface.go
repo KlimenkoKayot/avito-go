@@ -1,6 +1,8 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Field struct {
 	Key   string
@@ -40,8 +42,9 @@ type Logger interface {
 	Warn(msg string, fields ...Field)
 	Error(msg string, fields ...Field)
 	Fatal(msg string, fields ...Field)
-	OK(msg string, fields ...Field)
 	WithFields(fields ...Field) Logger
+	WithLayer(name string) Logger
+	OK(msg string, fields ...Field)
 }
 
 func String(msg, value string) Field {

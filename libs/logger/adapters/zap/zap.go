@@ -5,49 +5,66 @@ import (
 
 	"github.com/klimenkokayot/avito-go/libs/logger/domain"
 	"github.com/klimenkokayot/avito-go/libs/logger/pkg/colorise"
+	"github.com/klimenkokayot/avito-go/libs/logger/pkg/formatter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 type ZapAdapter struct {
-	logger *zap.Logger
-	fields []zap.Field
+	logger    *zap.Logger
+	fields    []zap.Field
+	formatter *formatter.Formatter
 }
 
 func (z *ZapAdapter) WithFields(fields ...domain.Field) domain.Logger {
 	zapFields := toZapFields(fields)
 	return &ZapAdapter{
-		logger: z.logger,
-		fields: zapFields,
+		logger:    z.logger,
+		fields:    zapFields,
+		formatter: z.formatter,
+	}
+}
+
+func (z *ZapAdapter) WithLayer(name string) domain.Logger {
+	return &ZapAdapter{
+		logger:    z.logger,
+		fields:    z.fields,
+		formatter: formatter.NewFormatter(name),
 	}
 }
 
 func (z *ZapAdapter) Debug(msg string, fields ...domain.Field) {
+	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Debug(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
+	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Error(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
+	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Fatal(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
+	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Info(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
+	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Warn(msg, zapFields...)
 }
 
 func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
+	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Info(colorise.ColorString(msg, colorise.ColorGreen), zapFields...)
 }
@@ -63,8 +80,9 @@ func NewAdapter(level domain.Level) (domain.Logger, error) {
 		return nil, fmt.Errorf("%w: %s.", ErrZapBuild, err.Error())
 	}
 	return &ZapAdapter{
-		zapLogger,
-		make([]zap.Field, 0),
+		logger:    zapLogger,
+		fields:    make([]zap.Field, 0),
+		formatter: formatter.NewFormatter(""),
 	}, nil
 }
 
