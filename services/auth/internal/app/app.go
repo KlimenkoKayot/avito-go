@@ -7,6 +7,7 @@ import (
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/service"
 	server "github.com/klimenkokayot/avito-go/services/auth/internal/infrastructure/http"
 	repo "github.com/klimenkokayot/avito-go/services/auth/internal/infrastructure/http/repository"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/interfaces/http/handlers"
 )
 
 type Application struct {
@@ -26,7 +27,12 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 		return nil, err
 	}
 
-	server, err := server.NewAuthServer(service, cfg, logger)
+	handler, err := handlers.NewAuthHandler(service, cfg, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	server, err := server.NewAuthServer(handler, cfg, logger)
 	if err != nil {
 		return nil, err
 	}

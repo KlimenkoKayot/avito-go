@@ -8,7 +8,8 @@ import (
 	"github.com/klimenkokayot/avito-go/libs/router"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
-	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/service"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/infrastructure/http/middleware"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/interfaces/http/handlers"
 )
 
 // corsMiddleware := cors.New(cors.Options{
@@ -19,13 +20,13 @@ import (
 // handler := corsMiddleware.Handler(mux)
 
 type AuthServer struct {
-	service *service.AuthService
+	handler *handlers.AuthHandler
 	router  router.Router
 	logger  logger.Logger
 	cfg     *config.Config
 }
 
-func NewAuthServer(service *service.AuthService, cfg *config.Config, logger logger.Logger) (domain.Server, error) {
+func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger logger.Logger) (domain.Server, error) {
 	router, err := router.NewAdapter(&router.Config{
 		Name: cfg.Router,
 	})
@@ -34,7 +35,7 @@ func NewAuthServer(service *service.AuthService, cfg *config.Config, logger logg
 	}
 
 	server := &AuthServer{
-		service,
+		handler,
 		router,
 		logger,
 		cfg,
@@ -49,9 +50,17 @@ func NewAuthServer(service *service.AuthService, cfg *config.Config, logger logg
 }
 
 func (a *AuthServer) setupRoutes() error {
+	a.router.POST("/login", a.handler.Login)
+	a.router.POST("/register", a.handler.Register)
+	return nil
+}
+
+func (a *AuthServer) setupMiddleware() error {
+	a.router.Use(middleware.LoggerMiddleware(a.logger))
 	return nil
 }
 
 func (a *AuthServer) Run() error {
+	a.logger.Info("Сервер запущен.", logger.Field{Key: "port", Value: a.cfg.ServerPort})
 	return http.ListenAndServe(fmt.Sprintf(":%d", a.cfg.ServerPort), a.router)
 }
