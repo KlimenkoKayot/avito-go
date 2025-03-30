@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/mux"
 	handlers "github.com/klimenkokayot/avito-go/front/internal/server/handlers"
-	utils "github.com/klimenkokayot/avito-go/front/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
