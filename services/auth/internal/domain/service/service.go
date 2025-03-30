@@ -13,6 +13,8 @@ type AuthService struct {
 }
 
 func NewAuthService(repo domain.UserRepository, cfg *config.Config, logger logger.Logger) (*AuthService, error) {
+	logger.Info("Инициализация сервиса.")
+	logger.OK("Успешно.")
 	return &AuthService{
 		logger,
 		repo,

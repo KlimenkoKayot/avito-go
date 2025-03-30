@@ -19,11 +19,13 @@ type UserRepository struct {
 }
 
 func NewUserRepository(cfg *config.Config, logger logger.Logger) (domain.UserRepository, error) {
+	logger.Info("Инициализация user-репозитория.")
 	dsn := cfg.DatabaseDSN
 	if dsn == "" {
 		return nil, ErrBadDSN
 	}
 
+	logger.Info("Подключение по DSN.")
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		return nil, err
@@ -46,6 +48,7 @@ func NewUserRepository(cfg *config.Config, logger logger.Logger) (domain.UserRep
 		return nil, err
 	}
 
+	logger.OK("Успешно.")
 	return &UserRepository{
 		logger,
 		db,

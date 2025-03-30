@@ -27,6 +27,7 @@ type AuthServer struct {
 }
 
 func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger logger.Logger) (domain.Server, error) {
+	logger.Info("Инициализация сервера.")
 	router, err := router.NewAdapter(&router.Config{
 		Name: cfg.Router,
 	})
@@ -46,12 +47,15 @@ func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger log
 		return nil, err
 	}
 
+	logger.OK("Успешно.")
 	return server, nil
 }
 
 func (a *AuthServer) setupRoutes() error {
+	a.logger.Info("Инициализация ручек.")
 	a.router.POST("/login", a.handler.Login)
 	a.router.POST("/register", a.handler.Register)
+	a.logger.OK("Успешно.")
 	return nil
 }
 

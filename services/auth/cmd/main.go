@@ -22,11 +22,12 @@ func main() {
 		log.Fatalf("Ошибка при инициализации config`a: %s.", err.Error())
 	}
 
-	app, err := app.NewApplication(config, logger)
+	appLogger := logger.WithLayer("APP")
+	app, err := app.NewApplication(config, appLogger)
 	if err != nil {
-		logger.Fatal("Ошибка при инициализации application: " + err.Error() + ".")
+		appLogger.Fatal("Ошибка при инициализации application: " + err.Error() + ".")
 	}
 	if err := app.Run(); err != nil {
-		logger.Fatal(err.Error())
+		appLogger.Fatal(err.Error())
 	}
 }

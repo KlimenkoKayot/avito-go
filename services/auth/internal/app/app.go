@@ -17,26 +17,33 @@ type Application struct {
 }
 
 func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Application, error) {
-	repo, err := repo.NewUserRepository(cfg, logger)
+	logger.Info("Инициализация application.")
+
+	repoLogger := logger.WithLayer("REPO")
+	repo, err := repo.NewUserRepository(cfg, repoLogger)
 	if err != nil {
 		return nil, err
 	}
 
-	service, err := service.NewAuthService(repo, cfg, logger)
+	serviceLogger := logger.WithLayer("SERVICE")
+	service, err := service.NewAuthService(repo, cfg, serviceLogger)
 	if err != nil {
 		return nil, err
 	}
 
-	handler, err := handlers.NewAuthHandler(service, cfg, logger)
+	handlerLogger := logger.WithLayer("HANDLER")
+	handler, err := handlers.NewAuthHandler(service, cfg, handlerLogger)
 	if err != nil {
 		return nil, err
 	}
 
-	server, err := server.NewAuthServer(handler, cfg, logger)
+	serverLogger := logger.WithLayer("SERVER")
+	server, err := server.NewAuthServer(handler, cfg, serverLogger)
 	if err != nil {
 		return nil, err
 	}
 
+	logger.OK("Успешно.")
 	return &Application{
 		server,
 		logger,
@@ -45,5 +52,6 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 }
 
 func (a *Application) Run() error {
+	a.logger.Info("Запуск application.")
 	return a.server.Run()
 }
