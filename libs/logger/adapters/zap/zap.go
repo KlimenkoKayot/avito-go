@@ -48,8 +48,11 @@ func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
 	zapCfg := zap.NewProductionConfig()
+	zapCfg.Encoding = "console"
 	zapCfg.Level = zap.NewAtomicLevelAt(zapcore.Level(level))
 	zapLogger, err := zapCfg.Build()
+	defer zapLogger.Sync()
+
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s.", ErrZapBuild, err.Error())
 	}
