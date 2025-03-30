@@ -2,6 +2,7 @@ package logrus
 
 import (
 	"github.com/klimenkokayot/avito-go/libs/logger/domain"
+	"github.com/klimenkokayot/avito-go/libs/logger/pkg/colorise"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,6 +36,10 @@ func (a *LogrusAdapter) Info(msg string, fields ...domain.Field) {
 
 func (a *LogrusAdapter) Warn(msg string, fields ...domain.Field) {
 	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(msg)
+}
+
+func (a *LogrusAdapter) OK(msg string, fields ...domain.Field) {
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(colorise.ColorString(msg, colorise.ColorGreen))
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {

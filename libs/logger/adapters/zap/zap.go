@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/klimenkokayot/avito-go/libs/logger/domain"
+	"github.com/klimenkokayot/avito-go/libs/logger/pkg/colorise"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -44,6 +45,11 @@ func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
 	zapFields := append(toZapFields(fields), z.fields...)
 	z.logger.Warn(msg, zapFields...)
+}
+
+func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
+	zapFields := append(toZapFields(fields), z.fields...)
+	z.logger.Info(colorise.ColorString(msg, colorise.ColorGreen), zapFields...)
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {

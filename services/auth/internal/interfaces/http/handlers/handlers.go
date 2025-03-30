@@ -19,6 +19,8 @@ type AuthHandler struct {
 }
 
 func NewAuthHandler(service *service.AuthService, cfg *config.Config, logger logger.Logger) (*AuthHandler, error) {
+	logger.Info("Инициализация обработчика.")
+	logger.Info("Успешно.")
 	return &AuthHandler{
 		service,
 		logger,
