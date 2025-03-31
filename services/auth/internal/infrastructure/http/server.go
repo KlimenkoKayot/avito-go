@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/libs/router"
@@ -23,7 +24,10 @@ type AuthServer struct {
 	handler *handlers.AuthHandler
 	router  router.Router
 	logger  logger.Logger
-	cfg     *config.Config
+
+	readTimeout  time.Duration
+	writeTimeout time.Duration
+	cfg          *config.Config
 }
 
 func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger logger.Logger) (domain.Server, error) {
@@ -35,10 +39,14 @@ func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger log
 		return nil, err
 	}
 
+	readTimeoutDuration := time.Second * cfg.ReadTimeoutSeconds
+	writeTimeoutDuration := time.Second * cfg.WriteTimeoutSeconds
 	server := &AuthServer{
 		handler,
 		router,
 		logger,
+		readTimeoutDuration,
+		writeTimeoutDuration,
 		cfg,
 	}
 
@@ -61,6 +69,7 @@ func (a *AuthServer) setupRoutes() error {
 
 func (a *AuthServer) setupMiddleware() error {
 	a.router.Use(middleware.LoggerMiddleware(a.logger))
+	a.router.Use(middleware.TimeoutMiddleware(a.readTimeout, a.writeTimeout))
 	return nil
 }
 
