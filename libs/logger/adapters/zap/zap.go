@@ -17,7 +17,7 @@ type ZapAdapter struct {
 }
 
 func (z *ZapAdapter) WithFields(fields ...domain.Field) domain.Logger {
-	zapFields := toZapFields(fields)
+	zapFields := toRouterFields(fields)
 	return &ZapAdapter{
 		logger:    z.logger,
 		fields:    zapFields,
@@ -35,44 +35,44 @@ func (z *ZapAdapter) WithLayer(name string) domain.Logger {
 
 func (z *ZapAdapter) Debug(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toZapFields(fields), z.fields...)
+	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Debug(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toZapFields(fields), z.fields...)
-	z.logger.Error(msg, zapFields...)
+	zapFields := append(toRouterFields(fields), z.fields...)
+	z.logger.Error(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
 }
 
 func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toZapFields(fields), z.fields...)
+	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Fatal(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
 }
 
 func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toZapFields(fields), z.fields...)
+	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Info(msg, zapFields...)
 }
 
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toZapFields(fields), z.fields...)
+	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Warn(colorise.ColorString(msg, colorise.ColorYellow), zapFields...)
 }
 
 func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toZapFields(fields), z.fields...)
+	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Info(colorise.ColorString(msg, colorise.ColorGreen), zapFields...)
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
 	zapCfg := zap.NewProductionConfig()
 	zapCfg.Encoding = "console"
-	zapCfg.Level = zap.NewAtomicLevelAt(zapcore.Level(level))
+	zapCfg.Level = toRouterLevel(level)
 	zapLogger, err := zapCfg.Build()
 	defer zapLogger.Sync()
 
@@ -86,7 +86,11 @@ func NewAdapter(level domain.Level) (domain.Logger, error) {
 	}, nil
 }
 
-func toZapFields(fields []domain.Field) []zap.Field {
+func toRouterLevel(level domain.Level) zap.AtomicLevel {
+	return zap.NewAtomicLevelAt(zapcore.Level(level))
+}
+
+func toRouterFields(fields []domain.Field) []zap.Field {
 	converted := []zap.Field{}
 	for _, val := range fields {
 		field := zap.Field{}

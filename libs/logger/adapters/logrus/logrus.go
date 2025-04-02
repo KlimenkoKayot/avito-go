@@ -36,7 +36,7 @@ func (a *LogrusAdapter) Debug(msg string, fields ...domain.Field) {
 
 func (a *LogrusAdapter) Error(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Error(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Error(colorise.ColorString(msg, colorise.ColorRed))
 }
 
 func (a *LogrusAdapter) Fatal(msg string, fields ...domain.Field) {
@@ -66,8 +66,12 @@ func NewAdapter(level domain.Level) (domain.Logger, error) {
 		make(logrus.Fields, 0),
 		formatter.NewFormatter(""),
 	}
-	logrusLogger.SetLevel(logrus.Level(level))
+	logrusLogger.SetLevel(toRouterLevel(level))
 	return adapter, nil
+}
+
+func toRouterLevel(level domain.Level) logrus.Level {
+	return logrus.Level(5 - level)
 }
 
 func toLogrusFields(fields []domain.Field) logrus.Fields {
