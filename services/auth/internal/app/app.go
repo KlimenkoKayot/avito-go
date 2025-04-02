@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
@@ -22,28 +24,28 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 	repoLogger := logger.WithLayer("REPO")
 	repo, err := repo.NewUserRepository(cfg, repoLogger)
 	if err != nil {
-		return nil, err
+		return nil, wrapError("инициализации репозитория", err)
 	}
 
 	serviceLogger := logger.WithLayer("SERVICE")
 	service, err := service.NewAuthService(repo, cfg, serviceLogger)
 	if err != nil {
-		return nil, err
+		return nil, wrapError("инициализации сервиса:", err)
 	}
 
 	handlerLogger := logger.WithLayer("HANDLER")
 	handler, err := handlers.NewAuthHandler(service, cfg, handlerLogger)
 	if err != nil {
-		return nil, err
+		return nil, wrapError("инициализации обработчиков:", err)
 	}
 
 	serverLogger := logger.WithLayer("SERVER")
 	server, err := server.NewAuthServer(handler, cfg, serverLogger)
 	if err != nil {
-		return nil, err
+		return nil, wrapError("инициализации сервера:", err)
 	}
 
-	logger.OK("Успешно.")
+	logger.OK("Application успешно инициализирован.")
 	return &Application{
 		server,
 		logger,
@@ -54,4 +56,8 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 func (a *Application) Run() error {
 	a.logger.Info("Запуск application.")
 	return a.server.Run()
+}
+
+func wrapError(msg string, err error) error {
+	return fmt.Errorf("Ошибка %s: %w", msg, err)
 }
