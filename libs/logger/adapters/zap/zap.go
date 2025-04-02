@@ -48,7 +48,7 @@ func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
 func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
-	z.logger.Fatal(msg, zapFields...)
+	z.logger.Fatal(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
 }
 
 func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
@@ -60,7 +60,7 @@ func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toZapFields(fields), z.fields...)
-	z.logger.Warn(msg, zapFields...)
+	z.logger.Warn(colorise.ColorString(msg, colorise.ColorYellow), zapFields...)
 }
 
 func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {

@@ -41,7 +41,7 @@ func (a *LogrusAdapter) Error(msg string, fields ...domain.Field) {
 
 func (a *LogrusAdapter) Fatal(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Fatal(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Fatal(colorise.ColorString(msg, colorise.ColorRed))
 }
 
 func (a *LogrusAdapter) Info(msg string, fields ...domain.Field) {
@@ -51,7 +51,7 @@ func (a *LogrusAdapter) Info(msg string, fields ...domain.Field) {
 
 func (a *LogrusAdapter) Warn(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(msg)
+	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(colorise.ColorString(msg, colorise.ColorYellow))
 }
 
 func (a *LogrusAdapter) OK(msg string, fields ...domain.Field) {
