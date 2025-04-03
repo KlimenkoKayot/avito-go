@@ -16,7 +16,7 @@ type LogrusAdapter struct {
 func (a *LogrusAdapter) WithFields(fields ...domain.Field) domain.Logger {
 	return &LogrusAdapter{
 		logger:    a.logger,
-		fields:    toLogrusFields(fields),
+		fields:    toRouterFields(fields),
 		formatter: a.formatter,
 	}
 }
@@ -31,32 +31,32 @@ func (a *LogrusAdapter) WithLayer(name string) domain.Logger {
 
 func (a *LogrusAdapter) Debug(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Debug(msg)
+	a.logger.WithFields(a.fields).WithFields(toRouterFields(fields)).Debug(msg)
 }
 
 func (a *LogrusAdapter) Error(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Error(colorise.ColorString(msg, colorise.ColorRed))
+	a.logger.WithFields(a.fields).WithFields(toRouterFields(fields)).Error(colorise.ColorString(msg, colorise.ColorRed))
 }
 
 func (a *LogrusAdapter) Fatal(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Fatal(colorise.ColorString(msg, colorise.ColorRed))
+	a.logger.WithFields(a.fields).WithFields(toRouterFields(fields)).Fatal(colorise.ColorString(msg, colorise.ColorRed))
 }
 
 func (a *LogrusAdapter) Info(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Info(msg)
+	a.logger.WithFields(a.fields).WithFields(toRouterFields(fields)).Info(msg)
 }
 
 func (a *LogrusAdapter) Warn(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(colorise.ColorString(msg, colorise.ColorYellow))
+	a.logger.WithFields(a.fields).WithFields(toRouterFields(fields)).Warn(colorise.ColorString(msg, colorise.ColorYellow))
 }
 
 func (a *LogrusAdapter) OK(msg string, fields ...domain.Field) {
 	msg = a.formatter.FormatMessage(msg)
-	a.logger.WithFields(a.fields).WithFields(toLogrusFields(fields)).Warn(colorise.ColorString(msg, colorise.ColorGreen))
+	a.logger.WithFields(a.fields).WithFields(toRouterFields(fields)).Warn(colorise.ColorString(msg, colorise.ColorGreen))
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
@@ -74,7 +74,7 @@ func toRouterLevel(level domain.Level) logrus.Level {
 	return logrus.Level(5 - level)
 }
 
-func toLogrusFields(fields []domain.Field) logrus.Fields {
+func toRouterFields(fields []domain.Field) logrus.Fields {
 	converted := logrus.Fields{}
 	for _, val := range fields {
 		converted[val.Key] = val.Value
