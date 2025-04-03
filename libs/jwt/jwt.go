@@ -4,19 +4,19 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/klimenkokayot/avito-go/libs/logger"
-	"github.com/klimenkokayot/avito-go/services/auth/config"
 )
 
 type TokenManager struct {
-	logger logger.Logger
-	cfg    *config.Config
+	jwtSecretKey           string
+	accessTokenExpiration  time.Duration
+	refreshTokenExpiration time.Duration
 }
 
-func NewTokenManager(jwtSecretKey string, logger logger.Logger, cfg *config.Config) (*TokenManager, error) {
+func NewTokenManager(jwtSecretKey string, accessTokenExpiration, refreshTokenExpiration time.Duration) (*TokenManager, error) {
 	return &TokenManager{
-		logger: logger,
-		cfg:    cfg,
+		jwtSecretKey:           jwtSecretKey,
+		accessTokenExpiration:  accessTokenExpiration,
+		refreshTokenExpiration: refreshTokenExpiration,
 	}, nil
 }
 
@@ -24,10 +24,10 @@ func (tm *TokenManager) NewAccessToken(login string, ip string) (string, error) 
 	payload := jwt.MapClaims{
 		"lgn": login,
 		"uip": ip,
-		"exp": time.Now().Add(tm.cfg.AccessTokenExpiration).Unix(),
+		"exp": time.Now().Add(tm.accessTokenExpiration).Unix(),
 		"ctd": time.Now().Unix(),
 	}
-	tokenData, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(tm.cfg.JwtSecretKey)
+	tokenData, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(tm.jwtSecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -37,10 +37,10 @@ func (tm *TokenManager) NewAccessToken(login string, ip string) (string, error) 
 func (tm *TokenManager) NewRefreshToken(login string) (string, error) {
 	payload := jwt.MapClaims{
 		"lgn": login,
-		"exp": time.Now().Add(tm.cfg.RefreshTokenExpiration).Unix(),
+		"exp": time.Now().Add(tm.refreshTokenExpiration).Unix(),
 		"ctd": time.Now().Unix(),
 	}
-	tokenData, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(tm.cfg.JwtSecretKey)
+	tokenData, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(tm.jwtSecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +50,7 @@ func (tm *TokenManager) NewRefreshToken(login string) (string, error) {
 func (tm *TokenManager) ValidateToken(tokenString string) (bool, error) {
 	claims := &jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return tm.cfg.JwtSecretKey, nil
+		return tm.jwtSecretKey, nil
 	})
 	if err != nil {
 		return false, err
@@ -62,7 +62,7 @@ func (tm *TokenManager) ValidateToken(tokenString string) (bool, error) {
 func (tm *TokenManager) ParseWithClaims(tokenString string) (*jwt.MapClaims, error) {
 	claims := &jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return tm.cfg.JwtSecretKey, nil
+		return tm.jwtSecretKey, nil
 	})
 	if err != nil {
 		return nil, err

@@ -3,18 +3,16 @@ package jwt
 import (
 	"net/http"
 
-	"github.com/klimenkokayot/avito-go/libs/logger"
+	"github.com/klimenkokayot/avito-go/libs/jwt"
 )
 
 type TokenMiddleware struct {
-	tokenManager *TokenManager
-	logger       logger.Logger
+	tokenManager *jwt.TokenManager
 }
 
-func NewTokenMiddleware(tokenManager *TokenManager, logger logger.Logger) (*TokenMiddleware, error) {
+func NewTokenMiddleware(tokenManager *jwt.TokenManager) (*TokenMiddleware, error) {
 	return &TokenMiddleware{
 		tokenManager: tokenManager,
-		logger:       logger,
 	}, nil
 }
 
