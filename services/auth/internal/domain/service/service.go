@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/klimenkokayot/avito-go/libs/jwt"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
@@ -8,16 +9,24 @@ import (
 )
 
 type AuthService struct {
-	logger   logger.Logger
-	userRepo domain.UserRepository
+	userRepo     domain.UserRepository
+	tokenManager *jwt.TokenManager
+	logger       logger.Logger
+	cfg          *config.Config
 }
 
 func NewAuthService(repo domain.UserRepository, cfg *config.Config, logger logger.Logger) (*AuthService, error) {
 	logger.Info("Инициализация сервиса.")
+	tokenManager, err := jwt.NewTokenManager(cfg.JwtSecretKey, cfg.AccessTokenExpiration, cfg.RefreshTokenExpiration)
+	if err != nil {
+		return nil, err
+	}
 	logger.OK("Успешно.")
 	return &AuthService{
-		logger,
-		repo,
+		userRepo:     repo,
+		tokenManager: tokenManager,
+		logger:       logger,
+		cfg:          cfg,
 	}, nil
 }
 
@@ -36,10 +45,14 @@ func (s *AuthService) Register(login, pass string) error {
 	return nil
 }
 
-func (s *AuthService) Login(login, pass string) error {
+func (s *AuthService) Login(login, pass string) (string, error) {
 	err := s.userRepo.Check(login, pass)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	token, err := s.tokenManager.NewRefreshToken(login)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }

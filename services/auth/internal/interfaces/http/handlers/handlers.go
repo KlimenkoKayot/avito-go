@@ -72,12 +72,17 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.authService.Login(user.Login, user.Secret)
+	token, err := h.authService.Login(user.Login, user.Secret)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.Writer(w).Write([]byte(fmt.Errorf("%w: %s", ErrRegisterProblem, err.Error()).Error()))
 		return
 	}
+
+	r.AddCookie(&http.Cookie{
+		Name:  "refresh_token",
+		Value: token,
+	})
 
 	w.WriteHeader(http.StatusOK)
 }

@@ -2,6 +2,7 @@ package repo
 
 import (
 	"database/sql"
+	"fmt"
 
 	_ "github.com/lib/pq"
 
@@ -22,7 +23,7 @@ func NewUserRepository(cfg *config.Config, logger logger.Logger) (domain.UserRep
 	logger.Info("Инициализация user-репозитория.")
 	dsn := cfg.DatabaseDSN
 	if dsn == "" {
-		return nil, ErrBadDSN
+		return nil, fmt.Errorf("лох!!... пидр!...")
 	}
 
 	logger.Info("Подключение по DSN.")
@@ -82,7 +83,7 @@ func (ur *UserRepository) Add(login string, secret string) error {
 	if err != nil {
 		return err
 	} else if found {
-		return ErrUserExists
+		return fmt.Errorf("АШИПКААААААААА_сосал?")
 	}
 	id := uuid.New().String()
 	user := &domain.User{

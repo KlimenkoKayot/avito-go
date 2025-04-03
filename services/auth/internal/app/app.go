@@ -22,19 +22,19 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 	logger.Info("Инициализация application.")
 
 	repoLogger := logger.WithLayer("REPO")
-	repo, err := repo.NewUserRepository(cfg, repoLogger)
+	userRepo, err := repo.NewUserRepository(cfg, repoLogger)
 	if err != nil {
 		return nil, wrapError("инициализации репозитория", err)
 	}
 
 	serviceLogger := logger.WithLayer("SERVICE")
-	service, err := service.NewAuthService(repo, cfg, serviceLogger)
+	authService, err := service.NewAuthService(userRepo, cfg, serviceLogger)
 	if err != nil {
 		return nil, wrapError("инициализации сервиса:", err)
 	}
 
 	handlerLogger := logger.WithLayer("HANDLER")
-	handler, err := handlers.NewAuthHandler(service, cfg, handlerLogger)
+	handler, err := handlers.NewAuthHandler(authService, cfg, handlerLogger)
 	if err != nil {
 		return nil, wrapError("инициализации обработчиков:", err)
 	}
