@@ -39,18 +39,21 @@ func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger log
 		return nil, err
 	}
 
-	readTimeoutDuration := time.Second * cfg.ReadTimeoutSeconds
-	writeTimeoutDuration := time.Second * cfg.WriteTimeoutSeconds
 	server := &AuthServer{
 		handler,
 		router,
 		logger,
-		readTimeoutDuration,
-		writeTimeoutDuration,
+		cfg.ReadTimeoutSeconds,
+		cfg.WriteTimeoutSeconds,
 		cfg,
 	}
 
 	err = server.setupRoutes()
+	if err != nil {
+		return nil, err
+	}
+
+	err = server.setupMiddleware()
 	if err != nil {
 		return nil, err
 	}
