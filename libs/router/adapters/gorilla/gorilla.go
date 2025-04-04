@@ -26,6 +26,10 @@ func (a *AdapterGorilla) POST(path string, handler domain.HandlerFunc) {
 	a.router.HandleFunc(path, handler).Methods("POST")
 }
 
+func (a *AdapterGorilla) Handle(path string, handler domain.Handler) {
+	a.router.Handle(path, handler)
+}
+
 func (a *AdapterGorilla) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.router.ServeHTTP(w, r)
 }
