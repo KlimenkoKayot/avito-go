@@ -15,7 +15,7 @@ type responseWriter struct {
 
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.status = code
-	rw.WriteHeader(code)
+	rw.ResponseWriter.WriteHeader(code)
 }
 
 func LoggerMiddleware(logger logger.Logger) func(http.Handler) http.Handler {
@@ -37,6 +37,7 @@ func LoggerMiddleware(logger logger.Logger) func(http.Handler) http.Handler {
 						domain.Field{Key: "duration", Value: time.Since(start)},
 						domain.Field{Key: "ip", Value: r.RemoteAddr},
 					).Error("Перехвачена ошибка в запросе.")
+					return
 				}
 			}()
 
