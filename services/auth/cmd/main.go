@@ -16,7 +16,7 @@ func main() {
 
 	logger, err := logger.NewAdapter(&logger.Config{
 		Adapter: config.Logger,
-		Level:   logger.LevelDebug,
+		Level:   logger.LevelDebug - 1,
 	})
 	if err != nil {
 		log.Fatalf("Ошибка при инициализации config`a: %s.", err.Error())

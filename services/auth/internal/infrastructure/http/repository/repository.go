@@ -23,7 +23,7 @@ func NewUserRepository(cfg *config.Config, logger logger.Logger) (domain.UserRep
 	logger.Info("Инициализация user-репозитория.")
 	dsn := cfg.DatabaseDSN
 	if dsn == "" {
-		return nil, fmt.Errorf("лох!!... пидр!...")
+		return nil, fmt.Errorf("Пустой адрес dsn")
 	}
 
 	logger.Info("Подключение по DSN.")
@@ -31,6 +31,7 @@ func NewUserRepository(cfg *config.Config, logger logger.Logger) (domain.UserRep
 	if err != nil {
 		return nil, err
 	}
+	logger.OK("Подключение выполнено.")
 
 	_, err = db.Exec(`DROP TABLE IF EXISTS users;`)
 	if err != nil {
@@ -58,8 +59,11 @@ func NewUserRepository(cfg *config.Config, logger logger.Logger) (domain.UserRep
 
 func (ur *UserRepository) FindByLogin(login string) (*domain.User, error) {
 	user := &domain.User{}
-	query := "SELECT * FROM users WHERE login = $1"
-	err := ur.db.Get(user, query, login)
+	err := ur.db.Get(
+		user,
+		"SELECT id, login, secret, created_at FROM users WHERE login = $1",
+		login,
+	)
 	if err == sql.ErrNoRows {
 		return nil, sql.ErrNoRows
 	} else if err != nil {
@@ -69,13 +73,15 @@ func (ur *UserRepository) FindByLogin(login string) (*domain.User, error) {
 }
 
 func (ur *UserRepository) ExistByLogin(login string) (bool, error) {
-	_, err := ur.FindByLogin(login)
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE login = $1)"
+	err := ur.db.QueryRow(query, login).Scan(&exists)
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		return false, err
+		return false, fmt.Errorf("Ошибка проверки существования пользователя: %w", err)
 	}
-	return true, nil
+	return exists, nil
 }
 
 func (ur *UserRepository) Add(login string, secret string) error {
@@ -83,15 +89,18 @@ func (ur *UserRepository) Add(login string, secret string) error {
 	if err != nil {
 		return err
 	} else if found {
-		return fmt.Errorf("АШИПКААААААААА_сосал?")
+		return fmt.Errorf("Пользователь существует")
 	}
-	id := uuid.New().String()
-	user := &domain.User{
-		ID:     id,
-		Login:  login,
-		Secret: secret,
+	uuid, err := uuid.NewRandom()
+	if err != nil {
+		return err
 	}
-	_, err = ur.db.NamedExec("INSERT INTO users (id, login, secret) VALUES (:id, :login, :secret)", user)
+
+	id := uuid.String()
+	_, err = ur.db.Exec(
+		"INSERT INTO users (id, login, secret) VALUES ($1, $2, $3)",
+		id, login, secret,
+	)
 	if err != nil {
 		return err
 	}

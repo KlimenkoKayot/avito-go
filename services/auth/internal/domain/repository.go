@@ -1,12 +1,16 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
-	ID        string
-	Login     string
-	Secret    string
-	CreatedAt time.Time
+	ID        uuid.UUID `db:"id" json:"id"`
+	Login     string    `db:"login" json:"login"`
+	Secret    string    `db:"secret" json:"pass"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
 type UserRepository interface {

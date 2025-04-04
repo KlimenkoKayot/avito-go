@@ -13,13 +13,6 @@ import (
 	"github.com/klimenkokayot/avito-go/services/auth/internal/interfaces/http/handlers"
 )
 
-// corsMiddleware := cors.New(cors.Options{
-// 	AllowedOrigins:   []string{"http://127.0.0.1:8080", "http://localhost:8080"},
-// 	AllowedMethods:   []string{"GET", "POST"},
-// 	AllowCredentials: true,
-// })
-// handler := corsMiddleware.Handler(mux)
-
 type AuthServer struct {
 	handler *handlers.AuthHandler
 	router  router.Router
@@ -64,13 +57,23 @@ func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger log
 
 func (a *AuthServer) setupRoutes() error {
 	a.logger.Info("Инициализация ручек.")
-	a.router.POST("/login", a.handler.Login)
-	a.router.POST("/register", a.handler.Register)
+
+	a.router.POST("/auth/login", a.handler.Login)
+	a.router.OPTIONS("/auth/login", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	a.router.POST("/auth/register", a.handler.Register)
+	a.router.OPTIONS("/auth/register", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+
 	a.logger.OK("Успешно.")
 	return nil
 }
 
 func (a *AuthServer) setupMiddleware() error {
+	a.router.Use(middleware.CorsMiddleware())
 	a.router.Use(middleware.LoggerMiddleware(a.logger))
 	a.router.Use(middleware.TimeoutMiddleware(a.readTimeout, a.writeTimeout))
 	return nil
