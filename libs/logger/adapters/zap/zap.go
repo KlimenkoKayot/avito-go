@@ -7,7 +7,6 @@ import (
 	"github.com/klimenkokayot/avito-go/libs/logger/pkg/colorise"
 	"github.com/klimenkokayot/avito-go/libs/logger/pkg/formatter"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type ZapAdapter struct {
@@ -87,7 +86,20 @@ func NewAdapter(level domain.Level) (domain.Logger, error) {
 }
 
 func toRouterLevel(level domain.Level) zap.AtomicLevel {
-	return zap.NewAtomicLevelAt(zapcore.Level(level))
+	switch level {
+	case domain.LevelDebug:
+		return zap.NewAtomicLevelAt(zap.DebugLevel)
+	case domain.LevelInfo:
+		return zap.NewAtomicLevelAt(zap.InfoLevel)
+	case domain.LevelWarn:
+		return zap.NewAtomicLevelAt(zap.WarnLevel)
+	case domain.LevelError:
+		return zap.NewAtomicLevelAt(zap.ErrorLevel)
+	case domain.LevelFatal:
+		return zap.NewAtomicLevelAt(zap.FatalLevel)
+	default:
+		return zap.NewAtomicLevelAt(zap.DebugLevel)
+	}
 }
 
 func toRouterFields(fields []domain.Field) []zap.Field {
