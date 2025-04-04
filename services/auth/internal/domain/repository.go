@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +13,12 @@ type User struct {
 	Secret    string    `db:"secret" json:"pass"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
+
+var (
+	ErrBadPassword  = fmt.Errorf("неправильный пароль")
+	ErrUserNotFound = fmt.Errorf("пользователь не найден")
+	ErrUserExist    = fmt.Errorf("пользователь уже существует")
+)
 
 type UserRepository interface {
 	Add(login string, secret string) error
