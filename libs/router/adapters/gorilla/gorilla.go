@@ -19,11 +19,15 @@ func NewAdapter() (domain.Router, error) {
 }
 
 func (a *AdapterGorilla) GET(path string, handler domain.HandlerFunc) {
-	a.router.HandleFunc(path, handler).Methods("GET")
+	a.router.HandleFunc(path, handler).Methods(http.MethodGet)
 }
 
 func (a *AdapterGorilla) POST(path string, handler domain.HandlerFunc) {
-	a.router.HandleFunc(path, handler).Methods("POST")
+	a.router.HandleFunc(path, handler).Methods(http.MethodPost)
+}
+
+func (a *AdapterGorilla) OPTIONS(path string, handler domain.HandlerFunc) {
+	a.router.HandleFunc(path, handler).Methods(http.MethodOptions)
 }
 
 func (a *AdapterGorilla) Handle(path string, handler domain.Handler) {

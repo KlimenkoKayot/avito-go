@@ -7,6 +7,7 @@ import (
 type Router interface {
 	GET(path string, handler HandlerFunc)
 	POST(path string, handler HandlerFunc)
+	OPTIONS(path string, handler HandlerFunc)
 	Handle(path string, handler Handler)
 	Use(middleware MiddlewareFunc)
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
