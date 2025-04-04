@@ -7,14 +7,14 @@ import (
 )
 
 type TokenManager struct {
-	jwtSecretKey           string
+	jwtSecretKey           []byte
 	accessTokenExpiration  time.Duration
 	refreshTokenExpiration time.Duration
 }
 
 func NewTokenManager(jwtSecretKey string, accessTokenExpiration, refreshTokenExpiration time.Duration) (*TokenManager, error) {
 	return &TokenManager{
-		jwtSecretKey:           jwtSecretKey,
+		jwtSecretKey:           []byte(jwtSecretKey),
 		accessTokenExpiration:  accessTokenExpiration,
 		refreshTokenExpiration: refreshTokenExpiration,
 	}, nil
