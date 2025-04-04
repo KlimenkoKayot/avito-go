@@ -22,9 +22,16 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (*Application, err
 
 	serverLogger := logger.WithLayer("SERVER")
 	server, err := server.NewServer(handlers, cfg, serverLogger)
+	if err != nil {
+		return nil, err
+	}
 	return &Application{
 		server: server,
 		logger: logger,
 		cfg:    cfg,
 	}, nil
+}
+
+func (a *Application) Run() error {
+	return a.server.Run()
 }
