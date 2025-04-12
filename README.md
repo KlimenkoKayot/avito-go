@@ -11,11 +11,16 @@
 
 ## Что я буду делать в первую очередь?
 
-1. Написать mok unit-тесты, интеграционные тесты
-2. Общую точку входа в API (API-шлюз)
-3. Написать market-микросервис
+1. JWT для микросервиса [авторизации](https://github.com/KlimenkoKayot/avito-go/tree/main/services/auth)
+2. Централизованный api-gateway
+3. Микросервис profile
+4. Kafka или Redis + адаптер к ним для гибкости
 
-## Запуск контейнера PostgreSQL для теста
+Обеспечить покрытие тестами
+Обеспечить CI/CD
+Обеспечить удобный деплой
+
+## Запуск контейнера postgres для теста
 ```
 sudo docker stop $(sudo docker ps -a -q)
 sudo docker rm $(sudo docker ps -a -q)
