@@ -69,3 +69,35 @@ func (tm *TokenManager) ParseWithClaims(tokenString string) (*jwt.MapClaims, err
 	}
 	return claims, nil
 }
+
+/*
+Возвращает пару из access (1) и refresh (2) токенов, ошибку (3), если возникла.
+*/
+func (tm *TokenManager) UpdateTokenPair(refreshToken string, ip string) (string, string, error) {
+	valid, err := tm.ValidateToken(refreshToken)
+	if err != nil {
+		return "", "", err
+	}
+	if !valid {
+		return "", "", ErrNotValidToken
+	}
+
+	claims, err := tm.ParseWithClaims(refreshToken)
+	if err != nil {
+		return "", "", err
+	}
+
+	lgn := (*claims)["lgn"].(string)
+
+	refreshToken, err = tm.NewRefreshToken(lgn)
+	if err != nil {
+		return "", "", err
+	}
+
+	accessToken, err := tm.NewAccessToken(lgn, ip)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
+}
