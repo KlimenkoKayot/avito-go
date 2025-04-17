@@ -47,6 +47,21 @@ func (tm *TokenManager) NewRefreshToken(login string) (string, error) {
 	return tokenData, nil
 }
 
+func (tm *TokenManager) ValidateTokenExpiration(token string) (bool, error) {
+	valid, err := tm.ValidateToken(token)
+	if !valid || err != nil {
+		return false, err
+	}
+	claims, err := tm.ParseWithClaims(token)
+	if err != nil {
+		return false, err
+	}
+	expTime := (*claims)["exp"].(time.Time)
+	expired := time.Now().After(expTime)
+	// если истек, то невалидный
+	return !expired, nil
+}
+
 func (tm *TokenManager) ValidateToken(tokenString string) (bool, error) {
 	claims := &jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
