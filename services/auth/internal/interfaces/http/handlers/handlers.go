@@ -31,7 +31,7 @@ func NewAuthHandler(service *service.AuthService, cfg *config.Config, logger log
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		h.logger.Error("Ошибка при чтении тела запроса.", logger.Field{
+		h.logger.Warn("Ошибка при чтении тела запроса.", logger.Field{
 			Key:   "err",
 			Value: err.Error(),
 		})
@@ -44,7 +44,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	user := &domain.User{}
 	err = json.Unmarshal(body, user)
 	if err != nil {
-		h.logger.Error("Ошибка при парсинге тела запроса.", logger.Field{
+		h.logger.Warn("Ошибка при парсинге тела запроса.", logger.Field{
 			Key:   "err",
 			Value: err.Error(),
 		})
@@ -55,7 +55,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, refreshToken, err := h.authService.Register(user.Login, user.Secret)
 	if err != nil {
-		h.logger.Error("Ошибка при регистрации пользователя", logger.Field{
+		h.logger.Warn("Ошибка при регистрации пользователя", logger.Field{
 			Key:   "err",
 			Value: err.Error(),
 		})
@@ -64,7 +64,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.updateTokenPair(r, accessToken, refreshToken)
+	err = h.updateTokenPair(w, accessToken, refreshToken)
 	if err != nil {
 		h.logger.Error("500 !!! Ошибка при регистрации аккаунта", logger.Field{
 			Key:   "err",
@@ -90,7 +90,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	user := &domain.User{}
 	err = json.Unmarshal(body, user)
 	if err != nil {
-		h.logger.Error("Ошибка при парсинге тела запроса.", logger.Field{
+		h.logger.Warn("Ошибка при парсинге тела запроса.", logger.Field{
 			Key:   "err",
 			Value: err.Error(),
 		})
@@ -101,7 +101,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, refreshToken, err := h.authService.Login(user.Login, user.Secret)
 	if err != nil {
-		h.logger.Error("Неудачный вход в аккаунт пользователя", logger.Field{
+		h.logger.Warn("Неудачный вход в аккаунт пользователя", logger.Field{
 			Key:   "err",
 			Value: err.Error(),
 		})
@@ -110,7 +110,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.updateTokenPair(r, accessToken, refreshToken)
+	err = h.updateTokenPair(w, accessToken, refreshToken)
 	if err != nil {
 		h.logger.Error("500 !!! Неудачный вход в аккаунт пользователя", logger.Field{
 			Key:   "err",
@@ -124,12 +124,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *AuthHandler) updateTokenPair(r *http.Request, accessToken, refreshToken string) error {
-	r.AddCookie(&http.Cookie{
+func (h *AuthHandler) updateTokenPair(w http.ResponseWriter, accessToken, refreshToken string) error {
+	http.SetCookie(w, &http.Cookie{
 		Name:  "access_token",
 		Value: accessToken,
 	})
-	r.AddCookie(&http.Cookie{
+	http.SetCookie(w, &http.Cookie{
 		Name:  "refresh_token",
 		Value: refreshToken,
 	})

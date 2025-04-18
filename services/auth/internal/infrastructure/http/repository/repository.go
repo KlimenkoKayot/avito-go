@@ -24,7 +24,7 @@ func NewUserRepository(cfg *config.Config, repoLogger logger.Logger) (domain.Use
 	repoLogger.Info("Инициализация user-репозитория.")
 	dsn := cfg.DatabaseDSN
 	if dsn == "" {
-		repoLogger.Error("Пустой dsn адрес.", logger.Field{
+		repoLogger.Warn("Пустой dsn адрес.", logger.Field{
 			Key:   "err",
 			Value: ErrEmptyDSN.Error(),
 		})

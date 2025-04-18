@@ -21,19 +21,23 @@ func TimeoutMiddleware(read time.Duration, write time.Duration) func(http.Handle
 
 			r = r.WithContext(ctx)
 
-			done := make(chan interface{})
-			go func() {
-				next.ServeHTTP(w, r)
-				close(done)
-			}()
+			/*
+				TODO TODO TODO TODO TODO TODO
+			*/
 
-			select {
-			case <-done:
-				return
-			case <-ctx.Done():
-				r.Response.StatusCode = http.StatusRequestTimeout
-				return
-			}
+			// done := make(chan interface{})
+			// go func() {
+			next.ServeHTTP(w, r)
+			// 	close(done)
+			// }()
+
+			// select {
+			// case <-done:
+			// 	return
+			// case <-ctx.Done():
+			// 	r.Response.StatusCode = http.StatusRequestTimeout
+			// 	return
+			// }
 		})
 	}
 }
