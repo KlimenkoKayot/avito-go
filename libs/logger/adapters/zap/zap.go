@@ -102,11 +102,7 @@ func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
-	zapCfg := zap.NewProductionConfig()
-	zapCfg.Encoding = "console"
-	zapCfg.Level = toRouterLevel(level)
-
-	zapLogger, err := zapCfg.Build()
+	zapLogger, err := zap.NewProduction()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrZapBuild, err.Error())
 	}
