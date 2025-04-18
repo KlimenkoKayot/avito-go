@@ -15,7 +15,7 @@ type ZapAdapter struct {
 	logger    *zap.Logger
 	fields    []zap.Field
 	formatter *formatter.Formatter
-	mu        sync.RWMutex // Защита от конкурентного доступа
+	mu        sync.RWMutex
 }
 
 func (z *ZapAdapter) WithFields(fields ...domain.Field) domain.Logger {
@@ -43,25 +43,15 @@ func (z *ZapAdapter) WithLayer(name string) domain.Logger {
 }
 
 func (z *ZapAdapter) log(level zapcore.Level, msg string, fields []domain.Field, color colorise.Color) {
-	// Защита от паники в форматировании
-	defer func() {
-		if r := recover(); r != nil {
-			z.logger.Error("LOGGER PANIC", zap.Any("recover", r))
-		}
-	}()
-
-	// Безопасное форматирование
 	formattedMsg := z.formatter.FormatMessage(msg)
 	formattedMsg = colorise.ColorString(formattedMsg, color)
 
-	// Конвертация полей с защитой от nil
 	zapFields := toRouterFields(fields)
 
 	z.mu.RLock()
 	allFields := append(zapFields, z.fields...)
 	z.mu.RUnlock()
 
-	// Логирование
 	switch level {
 	case zap.DebugLevel:
 		z.logger.Debug(formattedMsg, allFields...)
@@ -102,7 +92,11 @@ func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
-	zapLogger, err := zap.NewProduction()
+	zapCfg := zap.NewProductionConfig()
+	zapCfg.Encoding = "console"
+	zapCfg.Level = toRouterLevel(level)
+
+	zapLogger, err := zapCfg.Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrZapBuild, err.Error())
 	}
