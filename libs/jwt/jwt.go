@@ -116,3 +116,20 @@ func (tm *TokenManager) UpdateTokenPair(refreshToken string, ip string) (string,
 
 	return accessToken, refreshToken, nil
 }
+
+/*
+Возвращает пару из access (1) и refresh (2) токенов, ошибку (3), если возникла.
+*/
+func (tm *TokenManager) NewTokenPair(login, ip string) (string, string, error) {
+	refreshToken, err := tm.NewRefreshToken(login)
+	if err != nil {
+		return "", "", err
+	}
+
+	accessToken, err := tm.NewAccessToken(login, ip)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
+}
