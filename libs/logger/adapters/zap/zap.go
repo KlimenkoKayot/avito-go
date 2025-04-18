@@ -2,29 +2,39 @@ package zap
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/klimenkokayot/avito-go/libs/logger/domain"
 	"github.com/klimenkokayot/avito-go/libs/logger/pkg/colorise"
 	"github.com/klimenkokayot/avito-go/libs/logger/pkg/formatter"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type ZapAdapter struct {
 	logger    *zap.Logger
 	fields    []zap.Field
 	formatter *formatter.Formatter
+	mu        sync.RWMutex // Защита от конкурентного доступа
 }
 
 func (z *ZapAdapter) WithFields(fields ...domain.Field) domain.Logger {
 	zapFields := toRouterFields(fields)
+
+	z.mu.RLock()
+	defer z.mu.RUnlock()
+
 	return &ZapAdapter{
 		logger:    z.logger,
-		fields:    zapFields,
+		fields:    append(zapFields, z.fields...),
 		formatter: z.formatter,
 	}
 }
 
 func (z *ZapAdapter) WithLayer(name string) domain.Logger {
+	z.mu.RLock()
+	defer z.mu.RUnlock()
+
 	return &ZapAdapter{
 		logger:    z.logger,
 		fields:    z.fields,
@@ -32,62 +42,75 @@ func (z *ZapAdapter) WithLayer(name string) domain.Logger {
 	}
 }
 
+func (z *ZapAdapter) log(level zapcore.Level, msg string, fields []domain.Field, color colorise.Color) {
+	// Защита от паники в форматировании
+	defer func() {
+		if r := recover(); r != nil {
+			z.logger.Error("LOGGER PANIC", zap.Any("recover", r))
+		}
+	}()
+
+	// Безопасное форматирование
+	formattedMsg := z.formatter.FormatMessage(msg)
+	formattedMsg = colorise.ColorString(formattedMsg, color)
+
+	// Конвертация полей с защитой от nil
+	zapFields := toRouterFields(fields)
+
+	z.mu.RLock()
+	allFields := append(zapFields, z.fields...)
+	z.mu.RUnlock()
+
+	// Логирование
+	switch level {
+	case zap.DebugLevel:
+		z.logger.Debug(formattedMsg, allFields...)
+	case zap.InfoLevel:
+		z.logger.Info(formattedMsg, allFields...)
+	case zap.WarnLevel:
+		z.logger.Warn(formattedMsg, allFields...)
+	case zap.ErrorLevel:
+		z.logger.Error(formattedMsg, allFields...)
+	case zap.FatalLevel:
+		z.logger.Fatal(formattedMsg, allFields...)
+	}
+}
+
+// Методы-обёртки для удобства
 func (z *ZapAdapter) Debug(msg string, fields ...domain.Field) {
-	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Debug(msg, zapFields...)
-}
-
-func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
-	defer func() {
-		if err := recover(); err != nil {
-			return
-		}
-	}()
-	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Error(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
-}
-
-func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
-	defer func() {
-		if err := recover(); err != nil {
-			return
-		}
-	}()
-	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Fatal(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
+	z.log(zap.DebugLevel, msg, fields, colorise.ColorReset)
 }
 
 func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
-	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Info(msg, zapFields...)
+	z.log(zap.InfoLevel, msg, fields, colorise.ColorReset)
 }
 
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
-	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Warn(colorise.ColorString(msg, colorise.ColorYellow), zapFields...)
+	z.log(zap.WarnLevel, msg, fields, colorise.ColorYellow)
+}
+
+func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
+	z.log(zap.ErrorLevel, msg, fields, colorise.ColorRed)
+}
+
+func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
+	z.log(zap.FatalLevel, msg, fields, colorise.ColorRed)
 }
 
 func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
-	msg = z.formatter.FormatMessage(msg)
-	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Info(colorise.ColorString(msg, colorise.ColorGreen), zapFields...)
+	z.log(zap.InfoLevel, msg, fields, colorise.ColorGreen)
 }
 
 func NewAdapter(level domain.Level) (domain.Logger, error) {
 	zapCfg := zap.NewProductionConfig()
 	zapCfg.Encoding = "console"
 	zapCfg.Level = toRouterLevel(level)
-	zapLogger, err := zapCfg.Build()
-	defer zapLogger.Sync()
 
+	zapLogger, err := zapCfg.Build()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s.", ErrZapBuild, err.Error())
+		return nil, fmt.Errorf("%w: %s", ErrZapBuild, err.Error())
 	}
+
 	return &ZapAdapter{
 		logger:    zapLogger,
 		fields:    make([]zap.Field, 0),
