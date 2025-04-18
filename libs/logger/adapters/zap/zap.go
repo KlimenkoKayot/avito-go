@@ -41,7 +41,8 @@ func (z *ZapAdapter) Debug(msg string, fields ...domain.Field) {
 func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Error(msg, zapFields...)
+	colorised := colorise.ColorString(msg, colorise.ColorRed)
+	z.logger.Error(colorised, zapFields...)
 }
 
 func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
