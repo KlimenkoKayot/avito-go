@@ -88,7 +88,7 @@ func (tm *TokenManager) ParseWithClaims(tokenString string) (*jwt.MapClaims, err
 Возвращает пару из access (1) и refresh (2) токенов, ошибку (3), если возникла.
 */
 func (tm *TokenManager) UpdateTokenPair(refreshToken string, ip string) (string, string, error) {
-	valid, err := tm.ValidateToken(refreshToken)
+	valid, err := tm.ValidateTokenExpiration(refreshToken)
 	if err != nil {
 		return "", "", err
 	}

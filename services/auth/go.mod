@@ -6,9 +6,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/klimenkokayot/avito-go/libs/jwt v0.0.0-20250418090438-1f512f84b507
-	github.com/klimenkokayot/avito-go/libs/logger v0.0.0-20250418090438-1f512f84b507
-	github.com/klimenkokayot/avito-go/libs/router v0.0.0-20250418090438-1f512f84b507
+	github.com/klimenkokayot/avito-go/libs/jwt v0.0.0-20250418134520-8f8350dc697f
+	github.com/klimenkokayot/avito-go/libs/logger v0.0.0-20250418134520-8f8350dc697f
+	github.com/klimenkokayot/avito-go/libs/router v0.0.0-20250418134520-8f8350dc697f
 	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.37.0
 )
