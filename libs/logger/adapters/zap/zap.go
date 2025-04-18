@@ -39,12 +39,22 @@ func (z *ZapAdapter) Debug(msg string, fields ...domain.Field) {
 }
 
 func (z *ZapAdapter) Error(msg string, fields ...domain.Field) {
+	defer func() {
+		if err := recover(); err != nil {
+			return
+		}
+	}()
 	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Error(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
 }
 
 func (z *ZapAdapter) Fatal(msg string, fields ...domain.Field) {
+	defer func() {
+		if err := recover(); err != nil {
+			return
+		}
+	}()
 	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toRouterFields(fields), z.fields...)
 	z.logger.Fatal(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
@@ -59,7 +69,7 @@ func (z *ZapAdapter) Info(msg string, fields ...domain.Field) {
 func (z *ZapAdapter) Warn(msg string, fields ...domain.Field) {
 	msg = z.formatter.FormatMessage(msg)
 	zapFields := append(toRouterFields(fields), z.fields...)
-	z.logger.Warn(colorise.ColorString(msg, colorise.ColorRed), zapFields...)
+	z.logger.Warn(colorise.ColorString(msg, colorise.ColorYellow), zapFields...)
 }
 
 func (z *ZapAdapter) OK(msg string, fields ...domain.Field) {
