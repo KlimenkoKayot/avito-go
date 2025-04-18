@@ -123,18 +123,18 @@ func (ur *UserRepository) Add(login string, secret string) error {
 	return nil
 }
 
-func (ur *UserRepository) Check(login, pass string) error {
+func (ur *UserRepository) Check(login, pass string) (bool, error) {
 	var secret string
 	err := ur.db.QueryRow("SELECT secret FROM users WHERE login = $1", login).Scan(&secret)
 	if err == sql.ErrNoRows {
-		return domain.ErrUserNotFound
+		return false, nil
 	} else if err != nil {
-		return fmt.Errorf("ошибка при проверке данных: %w", err)
+		return false, fmt.Errorf("ошибка при проверке данных: %w", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(secret), []byte(pass))
 	if err != nil {
-		return fmt.Errorf("ошибка при проверке secret с pass: %w", err)
+		return false, fmt.Errorf("ошибка при проверке secret с pass: %w", err)
 	}
-	return nil
+	return true, nil
 }

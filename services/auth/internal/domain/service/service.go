@@ -30,29 +30,36 @@ func NewAuthService(repo domain.UserRepository, cfg *config.Config, logger logge
 	}, nil
 }
 
-func (s *AuthService) Register(login, pass string) error {
+func (s *AuthService) Register(login, pass string) (string, string, error) {
 	secretByte, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 	secret := string(secretByte)
 
 	err = s.userRepo.Add(login, secret)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 
-	return nil
+	accessToken, refreshToken, err := s.tokenManager.NewTokenPair(login)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
 
-func (s *AuthService) Login(login, pass string) (string, error) {
-	err := s.userRepo.Check(login, pass)
-	if err != nil {
-		return "", err
+func (s *AuthService) Login(login, pass string) (string, string, error) {
+	valid, err := s.userRepo.Check(login, pass)
+	if !valid || err != nil {
+		return "", "", domain.ErrBadPassword
 	}
-	token, err := s.tokenManager.NewRefreshToken(login)
+
+	accessToken, refreshToken, err := s.tokenManager.NewTokenPair(login)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return token, nil
+
+	return accessToken, refreshToken, nil
 }

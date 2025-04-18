@@ -53,13 +53,24 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.authService.Register(user.Login, user.Secret)
+	accessToken, refreshToken, err := h.authService.Register(user.Login, user.Secret)
 	if err != nil {
 		h.logger.Error("Ошибка при регистрации пользователя", logger.Field{
 			Key:   "err",
 			Value: err.Error(),
 		})
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(fmt.Errorf("ошибка при регистрации: %w", err))
+		return
+	}
+
+	err = h.updateTokenPair(r, accessToken, refreshToken)
+	if err != nil {
+		h.logger.Error("500 !!! Ошибка при регистрации аккаунта", logger.Field{
+			Key:   "err",
+			Value: err.Error(),
+		})
+		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(fmt.Errorf("ошибка при регистрации: %w", err))
 		return
 	}
@@ -88,7 +99,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.authService.Login(user.Login, user.Secret)
+	accessToken, refreshToken, err := h.authService.Login(user.Login, user.Secret)
 	if err != nil {
 		h.logger.Error("Неудачный вход в аккаунт пользователя", logger.Field{
 			Key:   "err",
@@ -99,10 +110,28 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.AddCookie(&http.Cookie{
-		Name:  "refresh_token",
-		Value: token,
-	})
+	err = h.updateTokenPair(r, accessToken, refreshToken)
+	if err != nil {
+		h.logger.Error("500 !!! Неудачный вход в аккаунт пользователя", logger.Field{
+			Key:   "err",
+			Value: err.Error(),
+		})
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(fmt.Errorf("ошибка при попытке входа: %w", err))
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *AuthHandler) updateTokenPair(r *http.Request, accessToken, refreshToken string) error {
+	r.AddCookie(&http.Cookie{
+		Name:  "access_token",
+		Value: accessToken,
+	})
+	r.AddCookie(&http.Cookie{
+		Name:  "refresh_token",
+		Value: refreshToken,
+	})
+	return nil
 }

@@ -37,7 +37,6 @@ func LoggerMiddleware(logger logger.Logger) func(http.Handler) http.Handler {
 						domain.Field{Key: "duration", Value: time.Since(start)},
 						domain.Field{Key: "ip", Value: r.RemoteAddr},
 					).Error("Перехвачена ошибка в запросе.")
-					return
 				}
 			}()
 

@@ -22,7 +22,7 @@ var (
 
 type UserRepository interface {
 	Add(login string, secret string) error
-	Check(login string, pass string) error
+	Check(login string, pass string) (bool, error)
 	FindByLogin(login string) (*User, error)
 	ExistByLogin(login string) (bool, error)
 }
