@@ -29,7 +29,7 @@ func (tm *TokenMiddleware) updateTokenPair(r *http.Request) error {
 	}
 	refreshToken := refreshTokenCookie.Value
 
-	accessToken, refreshToken, err = tm.tokenManager.UpdateTokenPair(refreshToken, r.RemoteAddr)
+	accessToken, refreshToken, err = tm.tokenManager.UpdateTokenPair(refreshToken)
 	if err != nil {
 		return err
 	}

@@ -20,12 +20,12 @@ func NewTokenManager(jwtSecretKey string, accessTokenExpiration, refreshTokenExp
 	}, nil
 }
 
-func (tm *TokenManager) NewAccessToken(login string) (string, error) {
-	payload := jwt.MapClaims{
-		"lgn": login,
-		"exp": time.Now().Add(tm.accessTokenExpiration).Unix(),
-		"ctd": time.Now().Unix(),
-	}
+func (tm *TokenManager) NewAccessToken(values map[string]interface{}) (string, error) {
+	payload := jwt.MapClaims{}
+	payload = values
+	payload["exp"] = time.Now().Add(tm.accessTokenExpiration).Unix()
+	payload["ctd"] = time.Now().Unix()
+
 	tokenData, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(tm.jwtSecretKey)
 	if err != nil {
 		return "", err
@@ -33,12 +33,12 @@ func (tm *TokenManager) NewAccessToken(login string) (string, error) {
 	return tokenData, nil
 }
 
-func (tm *TokenManager) NewRefreshToken(login string) (string, error) {
-	payload := jwt.MapClaims{
-		"lgn": login,
-		"exp": time.Now().Add(tm.refreshTokenExpiration).Unix(),
-		"ctd": time.Now().Unix(),
-	}
+func (tm *TokenManager) NewRefreshToken(values map[string]interface{}) (string, error) {
+	payload := jwt.MapClaims{}
+	payload = values
+	payload["exp"] = time.Now().Add(tm.refreshTokenExpiration).Unix()
+	payload["ctd"] = time.Now().Unix()
+
 	tokenData, err := jwt.NewWithClaims(jwt.SigningMethodHS256, payload).SignedString(tm.jwtSecretKey)
 	if err != nil {
 		return "", err
@@ -87,7 +87,7 @@ func (tm *TokenManager) ParseWithClaims(tokenString string) (*jwt.MapClaims, err
 /*
 Возвращает пару из access (1) и refresh (2) токенов, ошибку (3), если возникла.
 */
-func (tm *TokenManager) UpdateTokenPair(refreshToken string, ip string) (string, string, error) {
+func (tm *TokenManager) UpdateTokenPair(refreshToken string) (string, string, error) {
 	valid, err := tm.ValidateTokenExpiration(refreshToken)
 	if err != nil {
 		return "", "", err
@@ -101,14 +101,12 @@ func (tm *TokenManager) UpdateTokenPair(refreshToken string, ip string) (string,
 		return "", "", err
 	}
 
-	lgn := (*claims)["lgn"].(string)
-
-	refreshToken, err = tm.NewRefreshToken(lgn)
+	refreshToken, err = tm.NewRefreshToken(*claims)
 	if err != nil {
 		return "", "", err
 	}
 
-	accessToken, err := tm.NewAccessToken(lgn)
+	accessToken, err := tm.NewAccessToken(*claims)
 	if err != nil {
 		return "", "", err
 	}
@@ -119,13 +117,13 @@ func (tm *TokenManager) UpdateTokenPair(refreshToken string, ip string) (string,
 /*
 Возвращает пару из access (1) и refresh (2) токенов, ошибку (3), если возникла.
 */
-func (tm *TokenManager) NewTokenPair(login string) (string, string, error) {
-	refreshToken, err := tm.NewRefreshToken(login)
+func (tm *TokenManager) NewTokenPair(accessData, refreshData map[string]interface{}) (string, string, error) {
+	refreshToken, err := tm.NewRefreshToken(refreshData)
 	if err != nil {
 		return "", "", err
 	}
 
-	accessToken, err := tm.NewAccessToken(login)
+	accessToken, err := tm.NewAccessToken(accessData)
 	if err != nil {
 		return "", "", err
 	}
