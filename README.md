@@ -3,12 +3,9 @@
 
 Планируется реализовать аналог маркетплейса как Ozon, Wildberries, Avito
 
-## Из интересного
-
-1. Наследую JWT-токены как в блокчейне.
-
 ## Независимые микросервисы
 
+[API-gateway](https://github.com/KlimenkoKayot/avito-go/tree/main/api_gateway)
 [Микросервис-авторизации](https://github.com/KlimenkoKayot/avito-go/tree/main/services/auth)
 
 - - -
