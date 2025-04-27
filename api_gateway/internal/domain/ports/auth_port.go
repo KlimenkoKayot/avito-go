@@ -7,9 +7,8 @@ import (
 	model "github.com/klimenkokayot/avito-go/api_gateway/internal/domain/model/auth"
 )
 
+// Проверяет токен, в случае проблем - проксирует в микросервис авторизации.
 type AuthService interface {
-	ForwardAuthRequest(ctx context.Context, r *http.Request) (*http.Response, error)
-	VerifyTokenPair(ctx context.Context, tokenPair *model.TokenPair) (bool, error)
-	RefreshTokenPair(ctx context.Context, refreshToken string) (*model.TokenPair, error)
-	Logout(ctx context.Context, accessToken string) error // aka инвалидация токенов
+	VerifyTokenPair(ctx context.Context, tokenPair *model.TokenPair) (userID string, err error)
+	ProxyAuthRequest(ctx context.Context, r *http.Request) (*http.Response, error)
 }
