@@ -126,7 +126,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *AuthHandler) ValidateTokenPair(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+// func (h *AuthHandler) UpdateTokenPair(ctx context.Context, w )
+
+func (h *AuthHandler) ValidateTokenPair(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -147,7 +149,11 @@ func (h *AuthHandler) ValidateTokenPair(ctx context.Context, w http.ResponseWrit
 		return
 	}
 
-	valid, err := h.authService.ValidateTokenPair(tokenPair)
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	valid, err := h.authService.ValidateTokenPair(ctx, tokenPair)
 	if err != nil {
 		h.logger.Warn("Ошибка валидации токенов", logger.Field{
 			Key:   "err",

@@ -1,6 +1,9 @@
 package service
 
 import (
+	"context"
+	"sync"
+
 	"github.com/klimenkokayot/avito-go/libs/jwt"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
@@ -12,6 +15,7 @@ import (
 type AuthService struct {
 	userRepo     domain.UserRepository
 	tokenManager *jwt.TokenManager
+	mu           sync.Mutex
 	logger       logger.Logger
 	cfg          *config.Config
 }
@@ -26,6 +30,7 @@ func NewAuthService(repo domain.UserRepository, cfg *config.Config, logger logge
 	return &AuthService{
 		userRepo:     repo,
 		tokenManager: tokenManager,
+		mu:           sync.Mutex{},
 		logger:       logger,
 		cfg:          cfg,
 	}, nil
@@ -65,7 +70,7 @@ func (s *AuthService) Login(login, pass string) (string, string, error) {
 	return accessToken, refreshToken, nil
 }
 
-func (s *AuthService) ValidateTokenPair(tokenPair *model.TokenPair) (bool, error) {
+func (s *AuthService) ValidateTokenPair(ctx context.Context, tokenPair *model.TokenPair) (bool, error) {
 	validAccessToken, err := s.tokenManager.ValidateTokenExpiration(tokenPair.AccessToken)
 	if err != nil {
 		return false, err

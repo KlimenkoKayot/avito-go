@@ -58,13 +58,21 @@ func NewAuthServer(handler *handlers.AuthHandler, cfg *config.Config, logger log
 func (a *AuthServer) setupRoutes() error {
 	a.logger.Info("Инициализация ручек.")
 
+	// Аутентификация пользователя
 	a.router.POST("/auth/login", a.handler.Login)
 	a.router.OPTIONS("/auth/login", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
+	// Регистрация пользователя
 	a.router.POST("/auth/register", a.handler.Register)
 	a.router.OPTIONS("/auth/register", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	// Валидация токенов
+	a.router.GET("/auth/validate", a.handler.ValidateTokenPair)
+	a.router.OPTIONS("/auth/validate", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 

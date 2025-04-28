@@ -1,8 +1,11 @@
 package client
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
+	"path"
 
 	"github.com/klimenkokayot/avito-go/api_gateway/config"
 	model "github.com/klimenkokayot/avito-go/api_gateway/internal/domain/model/auth"
@@ -24,6 +27,27 @@ func (a *AuthClient) ProxyAuthRequest(ctx context.Context, r *http.Request) (*ht
 
 // Проверяет пару токенов
 func (a *AuthClient) VerifyTokenPair(ctx context.Context, tokenPair *model.TokenPair) (userID string, err error) {
+	data, err := json.Marshal(tokenPair)
+	if err != nil {
+		return "", err
+	}
+	buffer := new(bytes.Buffer)
+	buffer.WriteString(string(data))
+	req, err := http.NewRequest(http.MethodGet, path.Join(a.authBaseURL, "auth", "validate"), buffer)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := a.client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// Проверка на верификацию
+	if resp.StatusCode == http.StatusOK {
+		return "todo_user_id", nil
+	}
 	return "", nil
 }
 
