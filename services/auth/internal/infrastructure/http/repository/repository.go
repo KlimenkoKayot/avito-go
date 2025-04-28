@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
-	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
+	domain "github.com/klimenkokayot/avito-go/services/auth/internal/domain/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
