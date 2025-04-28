@@ -4,7 +4,8 @@ import (
 	"github.com/klimenkokayot/avito-go/libs/jwt"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
-	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/model"
+	domain "github.com/klimenkokayot/avito-go/services/auth/internal/domain/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -62,4 +63,17 @@ func (s *AuthService) Login(login, pass string) (string, string, error) {
 	}
 
 	return accessToken, refreshToken, nil
+}
+
+func (s *AuthService) ValidateTokenPair(tokenPair *model.TokenPair) (bool, error) {
+	validAccessToken, err := s.tokenManager.ValidateTokenExpiration(tokenPair.AccessToken)
+	if err != nil {
+		return false, err
+	}
+	validRefreshToken, err := s.tokenManager.ValidateTokenExpiration(tokenPair.RefreshToken)
+	if err != nil {
+		return false, err
+	}
+	validPairToken := validAccessToken && validRefreshToken
+	return validPairToken, nil
 }

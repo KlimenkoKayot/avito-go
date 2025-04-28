@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,7 +9,8 @@ import (
 
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
-	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/model"
+	domain "github.com/klimenkokayot/avito-go/services/auth/internal/domain/repository"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/service"
 )
 
@@ -122,6 +124,56 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *AuthHandler) ValidateTokenPair(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		io.Writer(w).Write([]byte(fmt.Errorf("ошибка при создании AuthHandler: %w", err).Error()))
+		return
+	}
+	defer r.Body.Close()
+
+	tokenPair := &model.TokenPair{}
+	err = json.Unmarshal(body, tokenPair)
+	if err != nil {
+		h.logger.Warn("Ошибка при парсинге тела запроса.", logger.Field{
+			Key:   "err",
+			Value: err.Error(),
+		})
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(fmt.Errorf("ошибка при парсинге тела запроса: %w", err))
+		return
+	}
+
+	valid, err := h.authService.ValidateTokenPair(tokenPair)
+	if err != nil {
+		h.logger.Warn("Ошибка валидации токенов", logger.Field{
+			Key:   "err",
+			Value: err.Error(),
+		})
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(fmt.Errorf("ошибка при валидации токенов: %w", err))
+		return
+	}
+
+	if valid {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(`
+		{
+			"is_valid": true
+		}
+		`)
+		return
+	}
+	w.WriteHeader(http.StatusUnauthorized)
+	json.NewEncoder(w).Encode(`
+	{
+		"is_valid": false,
+		"error": "expired token"
+	}
+	`)
 }
 
 func (h *AuthHandler) updateTokenPair(w http.ResponseWriter, accessToken, refreshToken string) error {
