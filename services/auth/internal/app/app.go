@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 
+	"github.com/klimenkokayot/avito-go/libs/jwt"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain"
@@ -27,8 +28,13 @@ func NewApplication(cfg *config.Config, logger logger.Logger) (domain.Applicatio
 		return nil, wrapError("инициализации репозитория", err)
 	}
 
+	tokenManager, err := jwt.NewTokenManager(cfg.JwtSecretKey, cfg.AccessTokenExpiration, cfg.RefreshTokenExpiration)
+	if err != nil {
+		return nil, err
+	}
+
 	serviceLogger := logger.WithLayer("SERVICE")
-	authService, err := service.NewAuthService(userRepo, cfg, serviceLogger)
+	authService, err := service.NewAuthService(userRepo, tokenManager, cfg, serviceLogger)
 	if err != nil {
 		return nil, wrapError("инициализации сервиса:", err)
 	}

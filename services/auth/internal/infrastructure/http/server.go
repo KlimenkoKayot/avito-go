@@ -14,10 +14,9 @@ import (
 )
 
 type AuthServer struct {
-	handler *handlers.AuthHandler
-	router  router.Router
-	logger  logger.Logger
-
+	handler      *handlers.AuthHandler
+	router       router.Router
+	logger       logger.Logger
 	readTimeout  time.Duration
 	writeTimeout time.Duration
 	cfg          *config.Config

@@ -4,28 +4,24 @@ import (
 	"context"
 	"sync"
 
-	"github.com/klimenkokayot/avito-go/libs/jwt"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 	"github.com/klimenkokayot/avito-go/services/auth/config"
 	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/model"
+	"github.com/klimenkokayot/avito-go/services/auth/internal/domain/ports"
 	domain "github.com/klimenkokayot/avito-go/services/auth/internal/domain/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
 	userRepo     domain.UserRepository
-	tokenManager *jwt.TokenManager
+	tokenManager ports.TokenManager
 	mu           sync.Mutex
 	logger       logger.Logger
 	cfg          *config.Config
 }
 
-func NewAuthService(repo domain.UserRepository, cfg *config.Config, logger logger.Logger) (*AuthService, error) {
+func NewAuthService(repo domain.UserRepository, tokenManager ports.TokenManager, cfg *config.Config, logger logger.Logger) (*AuthService, error) {
 	logger.Info("Инициализация сервиса.")
-	tokenManager, err := jwt.NewTokenManager(cfg.JwtSecretKey, cfg.AccessTokenExpiration, cfg.RefreshTokenExpiration)
-	if err != nil {
-		return nil, err
-	}
 	logger.OK("Успешно.")
 	return &AuthService{
 		userRepo:     repo,
@@ -48,7 +44,7 @@ func (s *AuthService) Register(login, pass string) (string, string, error) {
 		return "", "", err
 	}
 
-	accessToken, refreshToken, err := s.tokenManager.NewTokenPair(login)
+	accessToken, refreshToken, err := s.tokenManager.NewTokenPair(map[string]interface{}{"login": login}, map[string]interface{}{})
 	if err != nil {
 		return "", "", err
 	}
@@ -62,7 +58,7 @@ func (s *AuthService) Login(login, pass string) (string, string, error) {
 		return "", "", domain.ErrBadPassword
 	}
 
-	accessToken, refreshToken, err := s.tokenManager.NewTokenPair(login)
+	accessToken, refreshToken, err := s.tokenManager.NewTokenPair(map[string]interface{}{"login": login}, map[string]interface{}{})
 	if err != nil {
 		return "", "", err
 	}
