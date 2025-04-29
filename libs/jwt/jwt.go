@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/klimenkokayot/avito-go/libs/jwt/domain"
 )
 
 type TokenManager struct {
@@ -12,7 +13,7 @@ type TokenManager struct {
 	refreshTokenExpiration time.Duration
 }
 
-func NewTokenManager(jwtSecretKey string, accessTokenExpiration, refreshTokenExpiration time.Duration) (*TokenManager, error) {
+func NewTokenManager(jwtSecretKey string, accessTokenExpiration, refreshTokenExpiration time.Duration) (domain.TokenManager, error) {
 	return &TokenManager{
 		jwtSecretKey:           []byte(jwtSecretKey),
 		accessTokenExpiration:  accessTokenExpiration,
