@@ -16,42 +16,45 @@ import (
 type AuthClient struct {
 	client      *http.Client
 	authBaseURL string
-	logger      *logger.Logger
+	logger      logger.Logger
 	cfg         *config.Config
-}
-
-// Проксирует запросы в микросервис авторизации
-func (a *AuthClient) ProxyAuthRequest(ctx context.Context, r *http.Request) (*http.Response, error) {
-	return nil, nil
 }
 
 // Проверяет пару токенов
 func (a *AuthClient) VerifyTokenPair(ctx context.Context, tokenPair *model.TokenPair) (userID string, err error) {
+	a.logger.Info("Проверка токенов.")
 	data, err := json.Marshal(tokenPair)
 	if err != nil {
+		a.logger.Warn("Не удалось сформировать тело запроса.")
 		return "", err
 	}
 	buffer := new(bytes.Buffer)
 	buffer.WriteString(string(data))
-	req, err := http.NewRequest(http.MethodGet, path.Join(a.authBaseURL, "auth", "validate"), buffer)
+	req, err := http.NewRequest(http.MethodPost, path.Join(a.authBaseURL, "auth", "validate"), buffer)
 	if err != nil {
+		a.logger.Warn("Не удалось сформировать http.Request.")
 		return "", err
 	}
 
 	resp, err := a.client.Do(req)
 	if err != nil {
+		a.logger.Warn("Не удалось отравить запрос.")
 		return "", err
 	}
 	defer resp.Body.Close()
 
 	// Проверка на верификацию
 	if resp.StatusCode == http.StatusOK {
+		a.logger.OK("Токен валиден.")
 		return "todo_user_id", nil
 	}
+	a.logger.OK("Токен не валиден.")
 	return "", nil
 }
 
-func NewAuthClient(authBaseURL string, logger *logger.Logger, cfg *config.Config) (ports.AuthService, error) {
+func NewAuthClient(authBaseURL string, logger logger.Logger, cfg *config.Config) (ports.AuthService, error) {
+	logger.Info("Создание AuthClient`а.")
+	logger.OK("Успешное создание AuthClient`a.")
 	return &AuthClient{
 		client:      &http.Client{},
 		authBaseURL: authBaseURL,
