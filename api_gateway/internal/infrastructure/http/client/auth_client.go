@@ -21,7 +21,7 @@ type AuthClient struct {
 }
 
 // Проверяет пару токенов
-func (a *AuthClient) VerifyTokenPair(ctx context.Context, tokenPair *model.TokenPair) (userID string, err error) {
+func (a *AuthClient) Authenticate(ctx context.Context, tokenPair *model.TokenPair) (userID string, err error) {
 	a.logger.Info("Проверка токенов.")
 	data, err := json.Marshal(tokenPair)
 	if err != nil {
