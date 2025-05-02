@@ -8,16 +8,26 @@ import (
 	"path"
 
 	"github.com/klimenkokayot/avito-go/api_gateway/config"
-	model "github.com/klimenkokayot/avito-go/api_gateway/internal/domain/model/auth"
+	"github.com/klimenkokayot/avito-go/api_gateway/internal/domain/model"
 	"github.com/klimenkokayot/avito-go/api_gateway/internal/domain/ports"
 	"github.com/klimenkokayot/avito-go/libs/logger"
 )
 
 type AuthClient struct {
-	client      *http.Client
 	authBaseURL string
+	client      *http.Client
 	logger      logger.Logger
 	cfg         *config.Config
+}
+
+// Metrics implements ports.AuthService.
+func (a *AuthClient) Metrics() (metrics map[string]interface{}, err error) {
+	panic("unimplemented")
+}
+
+// RefreshTokens implements ports.AuthService.
+func (a *AuthClient) RefreshTokens(ctx context.Context, refreshToken string) (tokenPair *model.TokenPair, err error) {
+	panic("unimplemented")
 }
 
 // Проверяет пару токенов
@@ -56,8 +66,8 @@ func NewAuthClient(authBaseURL string, logger logger.Logger, cfg *config.Config)
 	logger.Info("Создание AuthClient`а.")
 	logger.OK("Успешное создание AuthClient`a.")
 	return &AuthClient{
-		client:      &http.Client{},
 		authBaseURL: authBaseURL,
+		client:      &http.Client{},
 		logger:      logger,
 		cfg:         cfg,
 	}, nil

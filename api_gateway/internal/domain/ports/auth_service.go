@@ -12,4 +12,7 @@ type AuthService interface {
 
 	// Обновление токенов
 	RefreshTokens(ctx context.Context, refreshToken string) (tokenPair *model.TokenPair, err error)
+
+	// Мониторинг
+	Metrics() (metrics map[string]interface{}, err error)
 }

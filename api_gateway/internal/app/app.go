@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/klimenkokayot/avito-go/api_gateway/config"
+	"github.com/klimenkokayot/avito-go/api_gateway/internal/domain/interfaces"
 	"github.com/klimenkokayot/avito-go/api_gateway/internal/domain/service"
 	"github.com/klimenkokayot/avito-go/api_gateway/internal/infrastructure/http/client"
 	"github.com/klimenkokayot/avito-go/api_gateway/internal/infrastructure/http/server"
@@ -10,7 +11,7 @@ import (
 )
 
 type Application struct {
-	server *server.ProxyServer
+	server interfaces.ProxyServer
 	logger logger.Logger
 	cfg    *config.Config
 }
